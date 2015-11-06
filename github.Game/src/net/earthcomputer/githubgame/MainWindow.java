@@ -1,12 +1,10 @@
-package net.earthcomputer.githubgame.gui;
+package net.earthcomputer.githubgame;
 
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-
-import net.earthcomputer.githubgame.GithubGame;
 
 public class MainWindow {
 

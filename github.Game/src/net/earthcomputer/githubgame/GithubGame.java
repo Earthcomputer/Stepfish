@@ -1,7 +1,5 @@
 package net.earthcomputer.githubgame;
 
-import net.earthcomputer.githubgame.gui.MainWindow;
-
 /**
  * The main class.
  * We still need to decide what the game is about :,(
