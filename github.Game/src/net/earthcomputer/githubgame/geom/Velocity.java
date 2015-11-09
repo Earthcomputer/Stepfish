@@ -8,9 +8,6 @@ package net.earthcomputer.githubgame.geom;
  */
 public class Velocity {
 	private float speed;
-	/**
-	 * Direction in degrees. 0 degrees vertically upwards, increases clockwise
-	 */
 	private float direction;
 	private float xvel;
 	private float yvel;
@@ -18,6 +15,12 @@ public class Velocity {
 	private Velocity() {
 	}
 
+	/**
+	 * Creates a {@link Velocity} from a speed and a direction
+	 * 
+	 * @see #setSpeed(float)
+	 * @see #setDirection(float)
+	 */
 	public static Velocity createFromSpeedAndDirection(float speed, float direction) {
 		Velocity vel = new Velocity();
 
@@ -37,6 +40,12 @@ public class Velocity {
 		return vel;
 	}
 
+	/**
+	 * Creates a {@link Velocity} from horizontal and vertical velocities
+	 * 
+	 * @see #setXComponent(float)
+	 * @see #setYComponent(float)
+	 */
 	public static Velocity createFromXAndYComponents(float xvel, float yvel) {
 		Velocity vel = new Velocity();
 
@@ -51,22 +60,51 @@ public class Velocity {
 		return vel;
 	}
 
+	/**
+	 * Gets the velocity's speed
+	 * 
+	 * @see #setSpeed(float)
+	 */
 	public float getSpeed() {
 		return speed;
 	}
 
+	/**
+	 * Gets the velocity's direction. 0 is vertically upwards and increases
+	 * clockwise
+	 * 
+	 * @see #setDirection(float)
+	 */
 	public float getDirection() {
 		return direction;
 	}
 
+	/**
+	 * Gets the horizontal velocity in this velocity. A negative value means the
+	 * object is moving left, and a positive value means the object is moving
+	 * right
+	 * 
+	 * @see #setXComponent(float)
+	 */
 	public float getXComponent() {
 		return xvel;
 	}
 
+	/**
+	 * Gets the vertical velocity in this velocity. A negative value means the
+	 * object is moving up, and a positive value means the object is moving down
+	 * 
+	 * @see #setYComponent(float)
+	 */
 	public float getYComponent() {
 		return yvel;
 	}
 
+	/**
+	 * Sets this velocity's speed
+	 * 
+	 * @see #getSpeed()
+	 */
 	public void setSpeed(float speed) {
 		if (speed < 0) {
 			speed = -speed;
@@ -79,6 +117,12 @@ public class Velocity {
 		yvel = (float) (speed * Math.sin(Math.toRadians(direction)));
 	}
 
+	/**
+	 * Sets this velocity's direction. For more information, see
+	 * {@link #getDirection()}
+	 * 
+	 * @see #getDirection()
+	 */
 	public void setDirection(float direction) {
 		direction = directionInBounds(direction);
 		this.direction = direction;
@@ -87,6 +131,12 @@ public class Velocity {
 		yvel = (float) (speed * Math.sin(Math.toRadians(direction)));
 	}
 
+	/**
+	 * Sets the horizontal velocity in this velocity. For more information, see
+	 * {@link #getXComponent()}
+	 * 
+	 * @see #getXComponent()
+	 */
 	public void setXComponent(float xvel) {
 		this.xvel = xvel;
 
@@ -96,6 +146,12 @@ public class Velocity {
 			direction += 360;
 	}
 
+	/**
+	 * Sets the vertical velocity in this velocity. For more information, see
+	 * {@link #getYComponent()}
+	 * 
+	 * @see #getYComponent()
+	 */
 	public void setYComponent(float yvel) {
 		this.yvel = yvel;
 
