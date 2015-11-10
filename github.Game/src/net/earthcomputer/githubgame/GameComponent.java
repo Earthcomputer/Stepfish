@@ -3,6 +3,7 @@ package net.earthcomputer.githubgame;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Area;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JComponent;
@@ -85,6 +86,12 @@ public abstract class GameComponent extends JComponent {
 
 	}
 
+	public boolean isCollidedWith(Point2D other) {
+		if (collisionMask == null || other == null)
+			return false;
+		return collisionMask.contains(other);
+	}
+
 	public boolean isCollidedWith(Shape other) {
 		if (collisionMask == null || other == null)
 			return false;
@@ -100,7 +107,7 @@ public abstract class GameComponent extends JComponent {
 	}
 
 	public boolean isCollidedWith(GameComponent other) {
-		if (collisionMask == null || other.collisionMask == null)
+		if (collisionMask == null || other == null || other.collisionMask == null)
 			return false;
 		boolean doFastCollision = fastCollision && other.fastCollision;
 		if (canDoFastCollision && doFastCollision) {

@@ -70,8 +70,9 @@ public class Velocity {
 	}
 
 	/**
-	 * Gets the velocity's direction. 0 is vertically upwards and increases
-	 * clockwise
+	 * Gets the velocity's direction. 0 is horizontally to the right and
+	 * increases clockwise. The direction has a range of 0, inclusive, and 360,
+	 * exclusive
 	 * 
 	 * @see #setDirection(float)
 	 */
