@@ -10,6 +10,12 @@ import javax.swing.JComponent;
 
 import net.earthcomputer.githubgame.geom.Pos;
 
+/**
+ * Represents all objects in the game
+ * 
+ * @author Earthcomputer
+ *
+ */
 public abstract class GameComponent extends JComponent {
 
 	private static final long serialVersionUID = 4039393389062942365L;
@@ -19,23 +25,42 @@ public abstract class GameComponent extends JComponent {
 	private boolean canDoFastCollision;
 	private boolean fastCollision = true;
 
+	/**
+	 * Constructs a game component with the given co-ordinates
+	 */
 	public GameComponent(float x, float y) {
 		this.pos = new Pos(x, y);
 		setLocation((int) x, (int) y);
 	}
 
+	/**
+	 * Gets the position of this game component. DO NOT USE
+	 * {@link java.awt.Component#getLocation() getLocation()}
+	 */
 	public Pos getPos() {
 		return pos;
 	}
 
+	/**
+	 * Gets the x-position of this component. DO NOT USE
+	 * {@link JComponent#getX() getX()}
+	 */
 	public float getXPos() {
 		return pos.x;
 	}
 
+	/**
+	 * Gets the y-position of this component. DO NOT USE
+	 * {@link JComponent#getY() getY()}
+	 */
 	public float getYPos() {
 		return pos.y;
 	}
 
+	/**
+	 * Sets the position of this component. DO NOT USE
+	 * {@link java.awt.Component#setLocation(java.awt.Point) setLocation(Point)}
+	 */
 	public void setPos(Pos pos) {
 		this.pos = pos;
 		setLocation((int) pos.x, (int) pos.y);
@@ -95,11 +120,11 @@ public abstract class GameComponent extends JComponent {
 	public boolean isCollidedWith(Shape other) {
 		if (collisionMask == null || other == null)
 			return false;
-		if (canDoFastCollision && fastCollision)
+		if (canDoFastCollision && fastCollision) {
 			return other.intersects((Rectangle2D) collisionMask);
-		else if (other instanceof Rectangle2D && fastCollision)
+		} else if (other instanceof Rectangle2D && fastCollision) {
 			return collisionMask.intersects((Rectangle2D) other);
-		else {
+		} else {
 			Area area = new Area(collisionMask);
 			area.intersect(new Area(other));
 			return !area.isEmpty();

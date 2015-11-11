@@ -32,9 +32,7 @@ public class Velocity {
 		direction = vel.directionInBounds(direction);
 		vel.direction = direction;
 
-		// cos dir = xvel / speed => xvel = speed cos dir
 		vel.xvel = (float) (speed * Math.cos(Math.toRadians(direction)));
-		// sin dir = yven / speed => yvel = speed sin dir
 		vel.yvel = (float) (speed * Math.sin(Math.toRadians(direction)));
 
 		return vel;
