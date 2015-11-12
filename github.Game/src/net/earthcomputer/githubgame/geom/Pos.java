@@ -70,6 +70,13 @@ public class Pos {
 		return new UnmodifiablePos(pos);
 	}
 
+	/**
+	 * Constructs a modifiable position that is a copy of the given position
+	 */
+	public static Pos copyOf(Pos pos) {
+		return new Pos(pos.x, pos.y);
+	}
+
 	private static class UnmodifiablePos extends Pos {
 
 		public UnmodifiablePos(Pos pos) {
@@ -84,6 +91,11 @@ public class Pos {
 		@Override
 		public void setY(float y) {
 			throw new UnsupportedOperationException("Cannot set the y-position of an unmodifiable position");
+		}
+
+		@Override
+		public Pos add(float x, float y) {
+			throw new UnsupportedOperationException("Cannot change the position of an unmodifiable position");
 		}
 
 	}

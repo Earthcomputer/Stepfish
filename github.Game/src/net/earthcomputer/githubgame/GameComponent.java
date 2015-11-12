@@ -65,7 +65,7 @@ public abstract class GameComponent extends JComponent {
 	 * {@link java.awt.Component#setLocation(java.awt.Point) setLocation(Point)}
 	 */
 	public void setPos(Pos pos) {
-		this.pos = pos;
+		this.pos = Pos.copyOf(pos);
 		setLocation((int) pos.getX(), (int) pos.getY());
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
@@ -150,7 +150,6 @@ public abstract class GameComponent extends JComponent {
 	 * Called every frame to draw this component
 	 */
 	public void draw(Graphics g) {
-
 	}
 
 	/**

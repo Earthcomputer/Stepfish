@@ -32,6 +32,7 @@ public class MaskRectangle implements ICollisionMask {
 
 	@Override
 	public void setGlobalPosition(Pos pos) {
+		pos = Pos.copyOf(pos);
 		pos.add(localPos);
 		rect.x = (int) pos.getX();
 		rect.y = (int) pos.getY();
@@ -39,7 +40,7 @@ public class MaskRectangle implements ICollisionMask {
 
 	@Override
 	public void setLocalPosition(Pos pos) {
-		localPos = pos;
+		localPos = Pos.copyOf(pos);
 	}
 
 	@Override

@@ -41,6 +41,7 @@ public class MainWindow {
 	public void addObject(GameComponent object) {
 		theFrame.getContentPane().add(object);
 		objects.add(object);
+		theFrame.repaint();
 		if (object instanceof IUpdateListener)
 			addUpdateListener((IUpdateListener) object);
 	}
