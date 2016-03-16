@@ -159,6 +159,35 @@ public class Velocity {
 		if (direction < 0)
 			direction += 360;
 	}
+	
+	public void accelerate(float amt) {
+		setSpeed(speed + amt);
+	}
+	
+	public void turn(float amt) {
+		setDirection(direction + amt);
+	}
+	
+	public void accelerateX(float amt) {
+		setXComponent(xvel + amt);
+	}
+	
+	public void accelerateY(float amt) {
+		setYComponent(yvel + amt);
+	}
+	
+	public void accelerate(Velocity gravity) {
+		accelerateX(gravity.getXComponent());
+		accelerateY(gravity.getYComponent());
+	}
+
+	public static Velocity unmodifiableVelocity(Velocity vel) {
+		return new UnmodifiableVelocity(vel);
+	}
+
+	public static Velocity copyOf(Velocity vel) {
+		return createFromSpeedAndDirection(vel.getSpeed(), vel.getDirection());
+	}
 
 	private float directionInBounds(float direction) {
 		while (direction >= 360)
@@ -166,5 +195,47 @@ public class Velocity {
 		while (direction < 0)
 			direction += 360;
 		return direction;
+	}
+
+	private static class UnmodifiableVelocity extends Velocity {
+		private boolean locked = false;
+
+		private UnmodifiableVelocity(Velocity vel) {
+			setSpeed(vel.getSpeed());
+			setDirection(vel.getDirection());
+			locked = true;
+		}
+
+		@Override
+		public void setSpeed(float speed) {
+			if (locked)
+				throw new UnsupportedOperationException("Cannot set the speed of an unmodifiable velocity");
+			else
+				super.setSpeed(speed);
+		}
+
+		@Override
+		public void setDirection(float direction) {
+			if (locked)
+				throw new UnsupportedOperationException("Cannot set the direction of an unmodifiable velocity");
+			else
+				super.setDirection(direction);
+		}
+
+		@Override
+		public void setXComponent(float xvel) {
+			if (locked)
+				throw new UnsupportedOperationException("Cannot set the x-component of an unmodifiable velocity");
+			else
+				super.setXComponent(xvel);
+		}
+
+		@Override
+		public void setYComponent(float yvel) {
+			if (locked)
+				throw new UnsupportedOperationException("Cannot set the y-component of an unmodifiable velocity");
+			else
+				super.setYComponent(yvel);
+		}
 	}
 }

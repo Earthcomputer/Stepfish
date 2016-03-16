@@ -1,7 +1,6 @@
 package net.earthcomputer.githubgame;
 
 import java.awt.Graphics;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
@@ -18,9 +17,7 @@ import net.earthcomputer.githubgame.geom.collision.ICollisionMask;
  * @author Earthcomputer
  *
  */
-public abstract class GameComponent extends JComponent {
-
-	private static final long serialVersionUID = 4039393389062942365L;
+public abstract class GameObject {
 
 	private Pos pos;
 	private ICollisionMask collisionMask;
@@ -30,10 +27,8 @@ public abstract class GameComponent extends JComponent {
 	/**
 	 * Constructs a game component with the given co-ordinates
 	 */
-	public GameComponent(float x, float y) {
+	public GameObject(float x, float y) {
 		this.pos = new Pos(x, y);
-		setLocation((int) x, (int) y);
-		setSize(1, 1);
 	}
 
 	/**
@@ -66,7 +61,6 @@ public abstract class GameComponent extends JComponent {
 	 */
 	public void setPos(Pos pos) {
 		this.pos = Pos.copyOf(pos);
-		setLocation((int) pos.getX(), (int) pos.getY());
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
 	}
@@ -77,7 +71,6 @@ public abstract class GameComponent extends JComponent {
 	 */
 	public void setXPos(float xpos) {
 		pos.setX(xpos);
-		setLocation((int) xpos, getY());
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
 	}
@@ -88,9 +81,12 @@ public abstract class GameComponent extends JComponent {
 	 */
 	public void setYPos(float ypos) {
 		pos.setY(ypos);
-		setLocation(getX(), (int) ypos);
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
+	}
+
+	public void move(float x, float y) {
+		pos.add(x, y);
 	}
 
 	/**
@@ -113,9 +109,6 @@ public abstract class GameComponent extends JComponent {
 	public void setCollisionMask(ICollisionMask mask) {
 		canDoFastCollision = mask.getGlobalShape() instanceof Rectangle2D;
 		collisionMask = mask;
-		Rectangle bounds = mask.getGlobalShape().getBounds();
-		setBounds(bounds);
-		setSize(bounds.width, bounds.height);
 		mask.setGlobalPosition(pos);
 	}
 
@@ -138,12 +131,6 @@ public abstract class GameComponent extends JComponent {
 	 */
 	protected boolean doesFastCollision() {
 		return fastCollision;
-	}
-
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		draw(g);
 	}
 
 	/**
@@ -182,7 +169,7 @@ public abstract class GameComponent extends JComponent {
 	 * Returns whether this object's collision mask intersects the other
 	 * object's collision mask
 	 */
-	public boolean isCollidedWith(GameComponent other) {
+	public boolean isCollidedWith(GameObject other) {
 		if (collisionMask == null || other == null || other.collisionMask == null)
 			return false;
 		boolean doFastCollision = fastCollision && other.fastCollision;

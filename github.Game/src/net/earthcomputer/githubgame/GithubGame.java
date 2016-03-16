@@ -1,15 +1,21 @@
 package net.earthcomputer.githubgame;
 
+import net.earthcomputer.githubgame.test.TestObject;
+
 /**
  * The main class. We still need to decide what the game is about :,(
  * 
  * @author Earthcomputer
  *
  */
-public class GithubGame {
+public class GithubGame implements Thread.UncaughtExceptionHandler {
 
 	public static final String GAME_NAME = "Github Game";
 	public static final String GAME_VERSION = "0.1 Alpha";
+	public static final int FRAMERATE = 60;
+	private static final int MILLIS_PER_FRAME = 1000 / FRAMERATE;
+	public static final int TICKRATE = 30;
+	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
 
 	/**
 	 * The singleton instance
@@ -17,6 +23,7 @@ public class GithubGame {
 	private static GithubGame INSTANCE;
 
 	private MainWindow theWindow;
+	private boolean runningLoop = false;
 
 	public static void main(String[] args) {
 		INSTANCE = new GithubGame();
@@ -31,13 +38,61 @@ public class GithubGame {
 	 * Called when the game starts
 	 */
 	private void startGame() {
+		Thread.setDefaultUncaughtExceptionHandler(this);
+		runningLoop = true;
 		theWindow = new MainWindow();
+		
+		registerKeyBinding("moveLeft", "LEFT");
+		registerKeyBinding("moveRight", "RIGHT");
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (runningLoop) {
+					long startFrame = System.currentTimeMillis(), timeToSleep;
+
+					theWindow.redraw();
+
+					timeToSleep = MILLIS_PER_FRAME - (System.currentTimeMillis() - startFrame);
+					if (timeToSleep > 0) {
+						try {
+							Thread.sleep(timeToSleep);
+						} catch (InterruptedException e) {
+							// Moving to the next frame doesn't hurt
+						}
+					}
+				}
+			}
+		}, "Drawing Thread").start();
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (runningLoop) {
+					long startTick = System.currentTimeMillis(), timeToSleep;
+
+					theWindow.updateTick();
+
+					timeToSleep = MILLIS_PER_TICK - (System.currentTimeMillis() - startTick);
+					if (timeToSleep > 0) {
+						try {
+							Thread.sleep(timeToSleep);
+						} catch (InterruptedException e) {
+							throw new RuntimeException("Ticking thread interrupted");
+						}
+					}
+				}
+			}
+		}, "Ticking Thread").start();
+
+		theWindow.addObject(new TestObject(20, 20));
 	}
 
 	/**
 	 * Called to end the game
 	 */
 	public void shutdown() {
+		runningLoop = false;
 		theWindow.disposeWindow();
 	}
 
@@ -46,6 +101,18 @@ public class GithubGame {
 	 */
 	public MainWindow getWindow() {
 		return theWindow;
+	}
+	
+	public void registerKeyBinding(String id, String keyStroke) {
+		theWindow.registerKeyBinding(id, keyStroke);
+	}
+
+	@Override
+	public void uncaughtException(Thread t, Throwable e) {
+		System.err.println(GAME_NAME + " has caught an uncaught exception in thread \"" + t.getName() + "\"");
+		System.err.println("Game version: " + GAME_VERSION);
+		e.printStackTrace();
+		shutdown();
 	}
 
 }
