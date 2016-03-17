@@ -1,6 +1,6 @@
 package net.earthcomputer.githubgame;
 
-import net.earthcomputer.githubgame.test.TestObject;
+import java.awt.event.KeyEvent;
 
 /**
  * The main class. We still need to decide what the game is about :,(
@@ -41,9 +41,9 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 		Thread.setDefaultUncaughtExceptionHandler(this);
 		runningLoop = true;
 		theWindow = new MainWindow();
-		
-		registerKeyBinding("moveLeft", "LEFT");
-		registerKeyBinding("moveRight", "RIGHT");
+
+		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);
+		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
 
 		new Thread(new Runnable() {
 			@Override
@@ -85,7 +85,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 			}
 		}, "Ticking Thread").start();
 
-		theWindow.addObject(new TestObject(20, 20));
+		theWindow.addObject(new PlayerObject(20, 20));
 	}
 
 	/**
@@ -102,9 +102,13 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 	public MainWindow getWindow() {
 		return theWindow;
 	}
+
+	public void registerKeyBinding(String name, int key) {
+		theWindow.registerKeyBinding(name, key);
+	}
 	
-	public void registerKeyBinding(String id, String keyStroke) {
-		theWindow.registerKeyBinding(id, keyStroke);
+	public boolean isKeyDown(String name) {
+		return theWindow.isKeyDown(name);
 	}
 
 	@Override

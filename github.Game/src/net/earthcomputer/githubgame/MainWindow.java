@@ -6,9 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -24,7 +24,7 @@ public class MainWindow {
 
 	private List<GameObject> objects = new ArrayList<GameObject>();
 	private List<IUpdateListener> updateListeners = new ArrayList<IUpdateListener>();
-	private Map<String, List<IKeyListener>> keyListeners = new HashMap<String, List<IKeyListener>>();
+	private Set<String> keysDown = new HashSet<String>();
 
 	public MainWindow() {
 		theFrame = new JFrame(GithubGame.GAME_NAME + " " + GithubGame.GAME_VERSION);
@@ -35,6 +35,11 @@ public class MainWindow {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				GithubGame.getInstance().shutdown();
+			}
+
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				keysDown.clear();
 			}
 		});
 		theFrame.pack();
@@ -50,16 +55,12 @@ public class MainWindow {
 		objects.add(object);
 		if (object instanceof IUpdateListener)
 			addUpdateListener((IUpdateListener) object);
-		if (object instanceof IKeyListener)
-			addKeyListener((IKeyListener) object);
 	}
 
 	public void removeObject(GameObject object) {
 		objects.remove(object);
 		if (object instanceof IUpdateListener)
 			removeUpdateListener((IUpdateListener) object);
-		if (object instanceof IKeyListener)
-			removeKeyListener((IKeyListener) object);
 	}
 
 	public void addUpdateListener(IUpdateListener updateListener) {
@@ -68,20 +69,6 @@ public class MainWindow {
 
 	public void removeUpdateListener(IUpdateListener updateListener) {
 		updateListeners.remove(updateListener);
-	}
-
-	public void addKeyListener(IKeyListener keyListener) {
-		String[] listensTo = keyListener.getListensTo();
-		for (String id : listensTo) {
-			keyListeners.get(id).add(keyListener);
-		}
-	}
-
-	public void removeKeyListener(IKeyListener keyListener) {
-		String[] listensTo = keyListener.getListensTo();
-		for (String id : listensTo) {
-			keyListeners.get(id).remove(keyListener);
-		}
 	}
 
 	public void redraw() {
@@ -102,20 +89,29 @@ public class MainWindow {
 		return contentPane.getSize().height;
 	}
 
-	public void registerKeyBinding(final String id, String keyStroke) {
-		contentPane.getInputMap().put(KeyStroke.getKeyStroke(keyStroke), id);
-		contentPane.getActionMap().put(id, new AbstractAction() {
+	public void registerKeyBinding(final String name, int key) {
+		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0), name + "_pressed");
+		contentPane.getActionMap().put(name + "_pressed", new AbstractAction() {
 			private static final long serialVersionUID = -753513252932687926L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<IKeyListener> listeners = keyListeners.get(id);
-				for (int i = listeners.size() - 1; i >= 0; i--) {
-					listeners.get(i).onKey(id);
-				}
+				keysDown.add(name);
 			}
 		});
-		keyListeners.put(id, new ArrayList<IKeyListener>());
+		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), name + "_released");
+		contentPane.getActionMap().put(name + "_released", new AbstractAction() {
+			private static final long serialVersionUID = -3429603800043274550L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				keysDown.remove(name);
+			}
+		});
+	}
+
+	public boolean isKeyDown(String name) {
+		return keysDown.contains(name);
 	}
 
 	private class CustomContentPane extends JPanel {
