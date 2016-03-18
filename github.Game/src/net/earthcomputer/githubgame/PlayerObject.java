@@ -3,24 +3,30 @@ package net.earthcomputer.githubgame;
 import java.awt.Graphics;
 
 import net.earthcomputer.githubgame.geom.Velocity;
+import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
 
 public class PlayerObject extends PhysicsObject {
 
 	private EnumPlayerState state;
-	private int gravityId;
+	private Velocity downwardsGravity;
+	private int downwardsGravityId;
 
 	public PlayerObject(float x, float y) {
 		super(x, y);
+		downwardsGravity = Velocity.createFromSpeedAndDirection(0, 90);
+		downwardsGravityId = addGravity(downwardsGravity);
 		changeState(EnumPlayerState.AIR);
+		setCollisionMask(new MaskRectangle(20, 20));
 	}
 
 	public void changeState(EnumPlayerState newState) {
 		this.state = newState;
 		if (newState.hasGravity()) {
-			gravityId = addGravity(Velocity.createFromSpeedAndDirection(1, 90));
+			downwardsGravity.setSpeed(1);
 		} else {
-			removeGravity(gravityId);
+			downwardsGravity.setSpeed(0);
 		}
+		updateGravity(downwardsGravityId, downwardsGravity);
 	}
 
 	@Override

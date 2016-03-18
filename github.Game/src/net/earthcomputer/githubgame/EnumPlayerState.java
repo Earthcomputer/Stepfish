@@ -2,7 +2,7 @@ package net.earthcomputer.githubgame;
 
 public enum EnumPlayerState {
 	
-	STAND(false), WALK(false), AIR(false);
+	STAND(false), WALK(false), AIR(true);
 	
 	private final boolean gravity;
 	

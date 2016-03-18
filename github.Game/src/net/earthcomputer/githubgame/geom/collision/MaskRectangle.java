@@ -17,6 +17,14 @@ public class MaskRectangle implements ICollisionMask {
 	private Rectangle rect;
 	private Pos localPos;
 
+	public MaskRectangle(int width, int height) {
+		this(0, 0, width, height);
+	}
+
+	public MaskRectangle(int x, int y, int width, int height) {
+		this(new Rectangle(x, y, width, height));
+	}
+
 	/**
 	 * Constructs a rectangle collision mask. Co-ordinates are local
 	 */

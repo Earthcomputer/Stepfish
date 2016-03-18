@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ public class MainWindow {
 		});
 		theFrame.pack();
 		theFrame.setLocationRelativeTo(null);
+		contentPane.requestFocus();
 		theFrame.setVisible(true);
 	}
 
@@ -51,10 +53,23 @@ public class MainWindow {
 		theFrame.dispose();
 	}
 
-	public void addObject(GameObject object) {
-		objects.add(object);
-		if (object instanceof IUpdateListener)
-			addUpdateListener((IUpdateListener) object);
+	public GameObject addObject(float x, float y, int id) {
+		return addObject(x, y, GithubGame.objectTypes.get(id));
+	}
+
+	public GameObject addObject(float x, float y, Class<? extends GameObject> object) {
+		GameObject instance;
+		try {
+			instance = object.getConstructor(float.class, float.class).newInstance(x, y);
+		} catch (Exception e) {
+			System.err.println("All subclasses of GameObject must have a constructor (float, float)");
+			e.printStackTrace();
+			return null;
+		}
+		objects.add(instance);
+		if (instance instanceof IUpdateListener)
+			addUpdateListener((IUpdateListener) instance);
+		return instance;
 	}
 
 	public void removeObject(GameObject object) {
@@ -76,8 +91,23 @@ public class MainWindow {
 	}
 
 	public void updateTick() {
-		for (int i = updateListeners.size() - 1; i >= 0; i--) {
-			updateListeners.get(i).update();
+		for (IUpdateListener updateListener : new ArrayList<IUpdateListener>(updateListeners)) {
+			updateListener.update();
+		}
+
+		checkCollision();
+	}
+
+	private void checkCollision() {
+		List<GameObject> objects = new ArrayList<GameObject>(this.objects);
+		for (GameObject object1 : objects) {
+			if (object1.receiveCollisionEvents()) {
+				for (GameObject object2 : objects) {
+					if (object1 != object2) {
+						object1.onCollidedWith(object2);
+					}
+				}
+			}
 		}
 	}
 
@@ -122,8 +152,8 @@ public class MainWindow {
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 
-			for (int i = objects.size() - 1; i >= 0; i--) {
-				objects.get(i).draw(g);
+			for (GameObject object : new ArrayList<GameObject>(objects)) {
+				object.draw(g);
 			}
 		}
 

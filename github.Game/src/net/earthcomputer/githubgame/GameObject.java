@@ -88,6 +88,13 @@ public abstract class GameObject {
 	public void move(float x, float y) {
 		pos.add(x, y);
 	}
+	
+	public void onCollidedWith(GameObject other) {
+	}
+	
+	public boolean receiveCollisionEvents() {
+		return true;
+	}
 
 	/**
 	 * Returns whether a collision mask has been set for this object

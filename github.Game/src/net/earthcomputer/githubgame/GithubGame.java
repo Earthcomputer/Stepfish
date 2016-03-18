@@ -1,6 +1,8 @@
 package net.earthcomputer.githubgame;
 
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The main class. We still need to decide what the game is about :,(
@@ -16,6 +18,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 	private static final int MILLIS_PER_FRAME = 1000 / FRAMERATE;
 	public static final int TICKRATE = 30;
 	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
+	public static final Map<Integer, Class<? extends GameObject>> objectTypes = new HashMap<Integer, Class<? extends GameObject>>();
 
 	/**
 	 * The singleton instance
@@ -42,6 +45,8 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 		runningLoop = true;
 		theWindow = new MainWindow();
 
+		objectTypes.put(0, PlayerObject.class);
+		
 		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);
 		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
 
@@ -85,7 +90,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler {
 			}
 		}, "Ticking Thread").start();
 
-		theWindow.addObject(new PlayerObject(20, 20));
+		theWindow.addObject(20, 20, PlayerObject.class);
 	}
 
 	/**
