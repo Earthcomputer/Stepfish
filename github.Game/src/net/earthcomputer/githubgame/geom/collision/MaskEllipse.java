@@ -13,12 +13,12 @@ import net.earthcomputer.githubgame.geom.Pos;
  */
 public class MaskEllipse implements ICollisionMask {
 
-	private Ellipse2D.Float ellipse;
+	private Ellipse2D.Double ellipse;
 	private Pos localPos;
 
 	public MaskEllipse(Ellipse2D ellipse) {
-		this.ellipse = new Ellipse2D.Float((float) ellipse.getX(), (float) ellipse.getY(), (float) ellipse.getWidth(),
-				(float) ellipse.getHeight());
+		this.ellipse = new Ellipse2D.Double(ellipse.getX(), ellipse.getY(), ellipse.getWidth(),
+				ellipse.getHeight());
 		localPos = new Pos(this.ellipse.x, this.ellipse.y);
 	}
 

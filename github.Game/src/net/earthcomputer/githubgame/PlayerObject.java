@@ -34,20 +34,20 @@ public class PlayerObject extends PhysicsObject {
 		super.update();
 
 		if (GithubGame.getInstance().isKeyDown("moveLeft")) {
-			setXPos(getXPos() - 10);
+			setX(getX() - 10);
 		}
 
 		if (GithubGame.getInstance().isKeyDown("moveRight")) {
-			setXPos(getXPos() + 10);
+			setX(getX() + 10);
 		}
 
-		if (getYPos() >= GithubGame.getInstance().getWindow().getHeight())
+		if (getY() >= GithubGame.getInstance().getWindow().getHeight())
 			accelerateY(-30);
 	}
 
 	@Override
 	public void draw(Graphics g) {
-		g.fillRect((int) getXPos(), (int) getYPos(), 20, 20);
+		g.fillRect((int) getX(), (int) getY(), 20, 20);
 	}
 
 }

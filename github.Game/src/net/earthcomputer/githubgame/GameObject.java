@@ -6,8 +6,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import javax.swing.JComponent;
-
 import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.collision.ICollisionMask;
 
@@ -27,37 +25,33 @@ public abstract class GameObject {
 	/**
 	 * Constructs a game component with the given co-ordinates
 	 */
-	public GameObject(float x, float y) {
+	public GameObject(double x, double y) {
 		this.pos = new Pos(x, y);
 	}
 
 	/**
-	 * Gets the unmodifiable position of this game component. DO NOT USE
-	 * {@link java.awt.Component#getLocation() getLocation()}
+	 * Gets the unmodifiable position of this game component
 	 */
 	public Pos getPos() {
 		return Pos.unmodifiablePos(pos);
 	}
 
 	/**
-	 * Gets the x-position of this component. DO NOT USE
-	 * {@link JComponent#getX() getX()}
+	 * Gets the x-position of this component
 	 */
-	public float getXPos() {
+	public double getX() {
 		return pos.getX();
 	}
 
 	/**
-	 * Gets the y-position of this component. DO NOT USE
-	 * {@link JComponent#getY() getY()}
+	 * Gets the y-position of this component
 	 */
-	public float getYPos() {
+	public double getY() {
 		return pos.getY();
 	}
 
 	/**
-	 * Sets the position of this component. DO NOT USE
-	 * {@link java.awt.Component#setLocation(java.awt.Point) setLocation(Point)}
+	 * Sets the position of this component
 	 */
 	public void setPos(Pos pos) {
 		this.pos = Pos.copyOf(pos);
@@ -66,32 +60,30 @@ public abstract class GameObject {
 	}
 
 	/**
-	 * Sets the x-position of this component. DO NOT USE
-	 * {@link java.awt.Component#setLocation(java.awt.Point) setLocation(Point)}
+	 * Sets the x-position of this component
 	 */
-	public void setXPos(float xpos) {
+	public void setX(double xpos) {
 		pos.setX(xpos);
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
 	}
 
 	/**
-	 * Sets the y-position of this component. DO NOT USE
-	 * {@link java.awt.Component#setLocation(java.awt.Point) setLocation(Point)}
+	 * Sets the y-position of this component
 	 */
-	public void setYPos(float ypos) {
+	public void setY(double ypos) {
 		pos.setY(ypos);
 		if (collisionMask != null)
 			collisionMask.setGlobalPosition(pos);
 	}
 
-	public void move(float x, float y) {
+	public void move(double x, double y) {
 		pos.add(x, y);
 	}
-	
+
 	public void onCollidedWith(GameObject other) {
 	}
-	
+
 	public boolean receiveCollisionEvents() {
 		return true;
 	}

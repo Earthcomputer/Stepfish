@@ -1,0 +1,27 @@
+The format each line goes like this:
+data-type: name (extra-information)
+
+These are the different data types:
+u1: an 8-bit precision unsigned integer. No Java data type equivalent
+u2: a 16-bit precision unsigned integer in big endian order. Equivalent to Java data type char
+u4: a 32-bit precision unsigned integer in big endian order. No Java data type equivalent
+i8: a 64-bit precision unsigned integer in big endian order. No Java data type equivalent
+s1: an 8-bit precision signed integer. Equivalent to Java data type byte
+s2: a 16-bit precision signed integer in big endian order. Equivalent to Java data type short
+s4: a 32-bit precision signed integer in big endian order. Equivalent to Java data type int
+s8: a 64-bit precision signed integer in big endian order. Equivalent to Java data type long
+f4: a 32-bit precision IEEE 754 floating-point number. Equivalent to Java data type float
+f8: a 64-bit precision IEEE 754 floating-point number. Equivalent to Java data type double
+utf8: a Unicode string. Equivalent to Java data type String
+
+This is the level format:
+u4: magic (always "GHGM" in ASCII, or 0x4748474D in hex)
+u1: level-format-version (Always 0 at the moment)
+utf8: level-name
+u2: level-width
+u2: level-height
+u2: number-of-objects {
+	f8: object-x
+	f8: object-y
+	u2: object-type-id
+}
