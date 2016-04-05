@@ -1,8 +1,9 @@
-package net.earthcomputer.githubgame;
+package net.earthcomputer.githubgame.object;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import net.earthcomputer.githubgame.IUpdateListener;
 import net.earthcomputer.githubgame.geom.Velocity;
 
 public class PhysicsObject extends GameObject implements IUpdateListener {
@@ -11,7 +12,7 @@ public class PhysicsObject extends GameObject implements IUpdateListener {
 	private Map<Integer, Velocity> gravities = new HashMap<Integer, Velocity>();
 	private int nextGravityId = 0;
 
-	public PhysicsObject(float x, float y) {
+	public PhysicsObject(double x, double y) {
 		super(x, y);
 		this.velocity = Velocity.createFromXAndYComponents(0, 0);
 	}

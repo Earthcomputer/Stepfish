@@ -21,7 +21,7 @@ utf8: level-name
 u2: level-width
 u2: level-height
 u2: number-of-objects {
-	f8: object-x
-	f8: object-y
+	s4: object-x
+	s4: object-y
 	u2: object-type-id
 }

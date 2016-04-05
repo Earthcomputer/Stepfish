@@ -1,4 +1,4 @@
-package net.earthcomputer.githubgame;
+package net.earthcomputer.githubgame.object;
 
 public enum EnumPlayerState {
 	
