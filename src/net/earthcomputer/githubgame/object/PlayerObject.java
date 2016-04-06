@@ -2,8 +2,11 @@ package net.earthcomputer.githubgame.object;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 
 import net.earthcomputer.githubgame.GithubGame;
+import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
 
@@ -53,7 +56,56 @@ public class PlayerObject extends PhysicsObject
 			setX(getX() + 10);
 		}
 		
-		if(getY() >= GithubGame.getInstance().getWindow().getHeight()) accelerateY(-30);
+		if(GithubGame.getInstance().getWindow().isObjectCollidedWith(this, WallObject.class))
+		{
+			Pos prevPos = getPreviousPos();
+			Pos pos = getPos();
+			double movingX = pos.getX() - prevPos.getX();
+			double movingY = pos.getY() - prevPos.getY();
+			double absDX = Math.abs(movingX);
+			double absDY = Math.abs(movingY);
+			setPos(prevPos);
+			double amtToMove;
+			if(absDX < absDY)
+			{
+				amtToMove = absDY;
+				movingX /= absDY;
+				movingY = Math.signum(movingY);
+			}
+			else
+			{
+				amtToMove = absDX;
+				movingY /= absDX;
+				movingX = Math.signum(movingX);
+			}
+			
+			Rectangle2D.Double rect = new Rectangle2D.Double(prevPos.getX(), prevPos.getY(), 16, 16);
+			
+			boolean success = false;
+			for(int i = 0; i < amtToMove; i++)
+			{
+				rect.x += movingX;
+				rect.y += movingY;
+				if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+				{
+					success = true;
+					break;
+				}
+			}
+			if(!success) setPos(pos);
+		}
+		
+		if(GithubGame.getInstance().getWindow()
+			.isShapeCollidedWith(new Line2D.Double(getX(), getY() + 17, getX() + 16, getY() + 17), WallObject.class))
+		{
+			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
+		}
+		else
+		{
+			if(state.needsSupport()) changeState(EnumPlayerState.AIR);
+		}
+		
+		if(getY() >= GithubGame.getInstance().getWindow().getHeight()) System.out.println("You died!");
 	}
 	
 	@Override

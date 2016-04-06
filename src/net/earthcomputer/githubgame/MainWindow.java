@@ -280,6 +280,26 @@ public class MainWindow
 		return objectsFound;
 	}
 	
+	public boolean isObjectCollidedWith(GameObject object, Class<? extends GameObject> clazz)
+	{
+		List<GameObject> objects = getObjectsThatCollideWith(object);
+		for(GameObject object1 : objects)
+		{
+			if(clazz.isInstance(object1)) return true;
+		}
+		return false;
+	}
+	
+	public boolean isShapeCollidedWith(Shape shape, Class<? extends GameObject> clazz)
+	{
+		List<GameObject> objects = getObjectsThatCollideWith(shape);
+		for(GameObject object1 : objects)
+		{
+			if(clazz.isInstance(object1)) return true;
+		}
+		return false;
+	}
+	
 	public double getTaxicabDistanceBetween(GameObject object1, GameObject object2)
 	{
 		return Math.abs(object1.getX() - object2.getX()) + Math.abs(object1.getY() - object2.getY());

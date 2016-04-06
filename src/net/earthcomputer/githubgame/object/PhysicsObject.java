@@ -4,105 +4,131 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.earthcomputer.githubgame.IUpdateListener;
+import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 
-public class PhysicsObject extends GameObject implements IUpdateListener {
-
+public class PhysicsObject extends GameObject implements IUpdateListener
+{
+	
+	private Pos posPrev;
 	private Velocity velocity;
 	private Map<Integer, Velocity> gravities = new HashMap<Integer, Velocity>();
 	private int nextGravityId = 0;
-
-	public PhysicsObject(double x, double y) {
+	
+	public PhysicsObject(double x, double y)
+	{
 		super(x, y);
 		this.velocity = Velocity.createFromXAndYComponents(0, 0);
 	}
-
-	public Velocity getVelocity() {
+	
+	public Velocity getVelocity()
+	{
 		return Velocity.unmodifiableVelocity(velocity);
 	}
-
-	public float getSpeed() {
+	
+	public float getSpeed()
+	{
 		return velocity.getSpeed();
 	}
-
-	public float getDirection() {
+	
+	public float getDirection()
+	{
 		return velocity.getDirection();
 	}
-
-	public float getXVelocity() {
+	
+	public float getXVelocity()
+	{
 		return velocity.getXComponent();
 	}
-
-	public float getYVelocity() {
+	
+	public float getYVelocity()
+	{
 		return velocity.getYComponent();
 	}
-
-	public void setVelocity(Velocity vel) {
+	
+	public void setVelocity(Velocity vel)
+	{
 		this.velocity = Velocity.copyOf(vel);
 	}
-
-	public void setSpeed(float speed) {
+	
+	public void setSpeed(float speed)
+	{
 		velocity.setSpeed(speed);
 	}
-
-	public void setDirection(float direction) {
+	
+	public void setDirection(float direction)
+	{
 		velocity.setDirection(direction);
 	}
-
-	public void setXVelocity(float xvel) {
+	
+	public void setXVelocity(float xvel)
+	{
 		velocity.setXComponent(xvel);
 	}
-
-	public void setYVelocity(float yvel) {
+	
+	public void setYVelocity(float yvel)
+	{
 		velocity.setYComponent(yvel);
 	}
-
-	public void accelerate(float amt) {
+	
+	public void accelerate(float amt)
+	{
 		velocity.accelerate(amt);
 	}
-
-	public void turn(float amt) {
+	
+	public void turn(float amt)
+	{
 		velocity.turn(amt);
 	}
-
-	public void accelerateX(float amt) {
+	
+	public void accelerateX(float amt)
+	{
 		velocity.accelerateX(amt);
 	}
-
-	public void accelerateY(float amt) {
+	
+	public void accelerateY(float amt)
+	{
 		velocity.accelerateY(amt);
 	}
-
-	/**
-	 * Adds gravity to this object
+	
+	/** Adds gravity to this object
 	 * 
 	 * @param gravity
-	 * @return The unique gravity id to refer to this gravity later on
-	 */
-	public int addGravity(Velocity gravity) {
+	 * @return The unique gravity id to refer to this gravity later on */
+	public int addGravity(Velocity gravity)
+	{
 		gravities.put(nextGravityId, Velocity.copyOf(gravity));
 		return nextGravityId++;
 	}
-
-	public void updateGravity(int gravityId, Velocity newGravity) {
-		if (!gravities.containsKey(gravityId)) {
-			throw new IllegalArgumentException(
-					"No gravity is registered to this object with the id " + gravityId + ", cannot update");
-		}
+	
+	public void updateGravity(int gravityId, Velocity newGravity)
+	{
+		if(!gravities.containsKey(gravityId)){ throw new IllegalArgumentException(
+			"No gravity is registered to this object with the id " + gravityId + ", cannot update"); }
 		gravities.put(gravityId, Velocity.copyOf(newGravity));
 	}
-
-	public void removeGravity(int gravityId) {
+	
+	public void removeGravity(int gravityId)
+	{
 		gravities.remove(gravityId);
 	}
-
+	
+	public Pos getPreviousPos()
+	{
+		return Pos.copyOf(posPrev);
+	}
+	
 	@Override
-	public void update() {
+	public void update()
+	{
+		posPrev = Pos.copyOf(getPos());
+		
 		move(velocity.getXComponent(), velocity.getYComponent());
-
-		for (Velocity gravity : gravities.values()) {
+		
+		for(Velocity gravity : gravities.values())
+		{
 			velocity.accelerate(gravity);
 		}
 	}
-
+	
 }

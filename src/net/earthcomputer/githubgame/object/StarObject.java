@@ -4,7 +4,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -45,14 +44,9 @@ public class StarObject extends GameObject implements IUpdateListener
 	@Override
 	public void update()
 	{
-		List<GameObject> collisionsHere = GithubGame.getInstance().getWindow().getObjectsThatCollideWith(this);
-		for(GameObject collision : collisionsHere)
+		if(GithubGame.getInstance().getWindow().isObjectCollidedWith(this, PlayerObject.class))
 		{
-			if(collision instanceof PlayerObject)
-			{
-				GithubGame.getInstance().getWindow().removeObject(this);
-				break;
-			}
+			GithubGame.getInstance().getWindow().removeObject(this);
 		}
 	}
 	
