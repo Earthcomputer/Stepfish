@@ -20,7 +20,8 @@ public class PlayerObject extends PhysicsObject
 		downwardsGravity = Velocity.createFromSpeedAndDirection(0, 90);
 		downwardsGravityId = addGravity(downwardsGravity);
 		changeState(EnumPlayerState.AIR);
-		setCollisionMask(new MaskRectangle(20, 20));
+		setCollisionMask(new MaskRectangle(16, 16));
+		setDepth(-1000);
 	}
 	
 	public void changeState(EnumPlayerState newState)

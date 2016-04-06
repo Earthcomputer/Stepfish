@@ -25,10 +25,10 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 	
 	public static final String GAME_NAME = "Github Game";
 	public static final String GAME_VERSION = "0.1 Alpha";
-	public static final int FRAMERATE = 60;
-	private static final int MILLIS_PER_FRAME = 1000 / FRAMERATE;
 	public static final int TICKRATE = 30;
 	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
+	public static final int FRAMERATE = TICKRATE;
+	private static final int MILLIS_PER_FRAME = 1000 / FRAMERATE;
 	public static final Map<Integer, GameObjectCreator<? extends GameObject>> objectCreatorsById = new HashMap<Integer, GameObjectCreator<? extends GameObject>>();
 	public static final Map<Integer, String> levelNamesByIndex = new HashMap<Integer, String>();
 	
@@ -93,32 +93,6 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		
 		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);
 		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
-		
-		new Thread(new Runnable() {
-			@Override
-			public void run()
-			{
-				while(runningLoop)
-				{
-					long startFrame = System.currentTimeMillis(), timeToSleep;
-					
-					theWindow.redraw();
-					
-					timeToSleep = MILLIS_PER_FRAME - (System.currentTimeMillis() - startFrame);
-					if(timeToSleep > 0)
-					{
-						try
-						{
-							Thread.sleep(timeToSleep);
-						}
-						catch (InterruptedException e)
-						{
-							// Moving to the next frame doesn't hurt
-						}
-					}
-				}
-			}
-		}, "Drawing Thread").start();
 		
 		new Thread(new Runnable() {
 			@Override

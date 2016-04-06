@@ -1,64 +1,39 @@
 package net.earthcomputer.githubgame.geom.collision;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 
-import net.earthcomputer.githubgame.geom.Pos;
-
-/**
+/** An implementation of a collision mask in the shape of a rectangle
  * 
- * An implementation of a collision mask in the shape of a rectangle
- * 
- * @author Earthcomputer
- *
- */
-public class MaskRectangle implements ICollisionMask {
-
-	private Rectangle rect;
-	private Pos localPos;
-
-	public MaskRectangle(int width, int height) {
+ * @author Earthcomputer */
+public class MaskRectangle extends CollisionMask<Rectangle2D>
+{
+	
+	public MaskRectangle(double width, double height)
+	{
 		this(0, 0, width, height);
 	}
-
-	public MaskRectangle(int x, int y, int width, int height) {
-		this(new Rectangle(x, y, width, height));
+	
+	public MaskRectangle(double x, double y, double width, double height)
+	{
+		this(new Rectangle2D.Double(x, y, width, height));
 	}
-
-	/**
-	 * Constructs a rectangle collision mask. Co-ordinates are local
-	 */
-	public MaskRectangle(Rectangle rect) {
-		this.rect = rect;
-		this.localPos = new Pos(rect.x, rect.y);
+	
+	/** Constructs a rectangle collision mask. Co-ordinates are local */
+	public MaskRectangle(Rectangle2D rect)
+	{
+		super(rect);
 	}
-
+	
 	@Override
-	public Shape getGlobalShape() {
-		return rect;
+	protected Rectangle2D translate(Rectangle2D shape, double x, double y)
+	{
+		return new Rectangle2D.Double(shape.getX() + x, shape.getY() + y, shape.getWidth(), shape.getHeight());
 	}
-
+	
 	@Override
-	public void setGlobalPosition(Pos pos) {
-		pos = Pos.copyOf(pos);
-		pos.add(localPos);
-		rect.x = (int) pos.getX();
-		rect.y = (int) pos.getY();
+	protected Rectangle2D copy(Rectangle2D shape)
+	{
+		return shape.getBounds2D();
 	}
-
-	@Override
-	public void setLocalPosition(Pos pos) {
-		localPos = Pos.copyOf(pos);
-	}
-
-	@Override
-	public Pos getLocalPosition() {
-		return localPos;
-	}
-
-	@Override
-	public Pos getGlobalPosition() {
-		return new Pos(rect.x, rect.y);
-	}
-
+	
 }

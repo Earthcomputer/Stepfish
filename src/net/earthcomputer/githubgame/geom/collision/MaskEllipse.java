@@ -1,53 +1,40 @@
 package net.earthcomputer.githubgame.geom.collision;
 
-import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
-import net.earthcomputer.githubgame.geom.Pos;
-
-/**
- * An implementation of the collision mask in the shape of an ellipse
+/** An implementation of the collision mask in the shape of an ellipse
  * 
- * @author Earthcomputer
- *
- */
-public class MaskEllipse implements ICollisionMask {
-
-	private Ellipse2D.Double ellipse;
-	private Pos localPos;
-
-	public MaskEllipse(Ellipse2D ellipse) {
-		this.ellipse = new Ellipse2D.Double(ellipse.getX(), ellipse.getY(), ellipse.getWidth(),
-				ellipse.getHeight());
-		localPos = new Pos(this.ellipse.x, this.ellipse.y);
+ * @author Earthcomputer */
+public class MaskEllipse extends CollisionMask<Ellipse2D>
+{
+	
+	public MaskEllipse(double width, double height)
+	{
+		this(0, 0, width, height);
 	}
-
+	
+	public MaskEllipse(double x, double y, double width, double height)
+	{
+		this(new Ellipse2D.Double(x, y, width, height));
+	}
+	
+	public MaskEllipse(Ellipse2D ellipse)
+	{
+		super(ellipse);
+	}
+	
 	@Override
-	public Shape getGlobalShape() {
-		return ellipse;
+	protected Ellipse2D translate(Ellipse2D shape, double x, double y)
+	{
+		if(x == 0 && y == 0)
+			return shape;
+		else return new Ellipse2D.Double(shape.getX() + x, shape.getY() + y, shape.getWidth(), shape.getHeight());
 	}
-
+	
 	@Override
-	public void setLocalPosition(Pos pos) {
-		localPos = Pos.copyOf(pos);
+	protected Ellipse2D copy(Ellipse2D shape)
+	{
+		return new Ellipse2D.Double(shape.getX(), shape.getY(), shape.getWidth(), shape.getHeight());
 	}
-
-	@Override
-	public void setGlobalPosition(Pos pos) {
-		pos = Pos.copyOf(pos);
-		pos.add(localPos);
-		ellipse.x = pos.getX();
-		ellipse.y = pos.getY();
-	}
-
-	@Override
-	public Pos getLocalPosition() {
-		return localPos;
-	}
-
-	@Override
-	public Pos getGlobalPosition() {
-		return new Pos(ellipse.x, ellipse.y);
-	}
-
+	
 }

@@ -3,6 +3,7 @@ package net.earthcomputer.githubgame;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -10,6 +11,8 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,8 +34,12 @@ public class MainWindow
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;
 	
-	private List<GameObject> objects = new ArrayList<GameObject>();
-	private List<IUpdateListener> updateListeners = new ArrayList<IUpdateListener>();
+	private List<GameObject> objects = Collections.synchronizedList(new ArrayList<GameObject>());
+	private Set<GameObject> objectsToAdd = Collections.synchronizedSet(new HashSet<GameObject>());
+	private Set<GameObject> objectsToRemove = Collections.synchronizedSet(new HashSet<GameObject>());
+	private List<IUpdateListener> updateListeners = Collections.synchronizedList(new ArrayList<IUpdateListener>());
+	private Set<IUpdateListener> updateListenersToAdd = Collections.synchronizedSet(new HashSet<IUpdateListener>());
+	private Set<IUpdateListener> updateListenersToRemove = Collections.synchronizedSet(new HashSet<IUpdateListener>());
 	private Set<String> keysDown = new HashSet<String>();
 	
 	private int levelWidth;
@@ -78,7 +85,7 @@ public class MainWindow
 		T instance = creator.create(x, y);
 		if(instance != null)
 		{
-			objects.add(instance);
+			objectsToAdd.add(instance);
 			if(instance instanceof IUpdateListener) addUpdateListener((IUpdateListener) instance);
 		}
 		return instance;
@@ -86,18 +93,18 @@ public class MainWindow
 	
 	public void removeObject(GameObject object)
 	{
-		objects.remove(object);
+		objectsToRemove.add(object);
 		if(object instanceof IUpdateListener) removeUpdateListener((IUpdateListener) object);
 	}
 	
 	public void addUpdateListener(IUpdateListener updateListener)
 	{
-		updateListeners.add(updateListener);
+		updateListenersToAdd.add(updateListener);
 	}
 	
 	public void removeUpdateListener(IUpdateListener updateListener)
 	{
-		updateListeners.remove(updateListener);
+		updateListenersToRemove.add(updateListener);
 	}
 	
 	public boolean loadLevel(int levelId)
@@ -157,30 +164,125 @@ public class MainWindow
 	
 	public void updateTick()
 	{
-		for(IUpdateListener updateListener : new ArrayList<IUpdateListener>(updateListeners))
+		synchronized(updateListeners)
 		{
-			updateListener.update();
+			for(IUpdateListener updateListener : updateListeners)
+			{
+				updateListener.update();
+			}
 		}
 		
-		checkCollision();
+		redraw();
+		
+		synchronized(objectsToRemove)
+		{
+			for(GameObject object : objectsToRemove)
+			{
+				objects.remove(object);
+			}
+		}
+		synchronized(objectsToAdd)
+		{
+			for(GameObject object : objectsToAdd)
+			{
+				objects.add(object);
+			}
+		}
+		objectsToRemove.clear();
+		objectsToAdd.clear();
+		synchronized(updateListenersToRemove)
+		{
+			for(IUpdateListener updateListener : updateListenersToRemove)
+			{
+				updateListeners.remove(updateListener);
+			}
+		}
+		synchronized(updateListenersToAdd)
+		{
+			for(IUpdateListener updateListener : updateListenersToAdd)
+			{
+				updateListeners.add(updateListener);
+			}
+		}
+		updateListenersToRemove.clear();
+		updateListenersToAdd.clear();
+		
+		synchronized(objects)
+		{
+			Collections.sort(objects, new Comparator<GameObject>() {
+				@Override
+				public int compare(GameObject first, GameObject second)
+				{
+					return Integer.compare(second.getDepth(), first.getDepth());
+				}
+			});
+		}
+		
+		synchronized(updateListeners)
+		{
+			Collections.sort(updateListeners, new Comparator<IUpdateListener>() {
+				@Override
+				public int compare(IUpdateListener first, IUpdateListener second)
+				{
+					if(first instanceof GameObject)
+					{
+						if(second instanceof GameObject)
+						{
+							return Integer.compare(((GameObject) second).getDepth(), ((GameObject) first).getDepth());
+						}
+						else
+						{
+							return -1;
+						}
+					}
+					else if(second instanceof GameObject)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				}
+			});
+		}
 	}
 	
-	private void checkCollision()
+	public List<GameObject> getObjectsThatCollideWith(Shape shape)
 	{
-		List<GameObject> objects = new ArrayList<GameObject>(this.objects);
-		for(GameObject object1 : objects)
+		List<GameObject> objectsFound = new ArrayList<GameObject>();
+		synchronized(objects)
 		{
-			if(object1.receiveCollisionEvents())
+			for(GameObject object : objects)
 			{
-				for(GameObject object2 : objects)
+				if(object.isCollidedWith(shape))
 				{
-					if(object1 != object2)
-					{
-						object1.onCollidedWith(object2);
-					}
+					objectsFound.add(object);
 				}
 			}
 		}
+		return objectsFound;
+	}
+	
+	public List<GameObject> getObjectsThatCollideWith(GameObject object)
+	{
+		List<GameObject> objectsFound = new ArrayList<GameObject>();
+		synchronized(objects)
+		{
+			for(GameObject object1 : objects)
+			{
+				if(object1.isCollidedWith(object))
+				{
+					objectsFound.add(object1);
+				}
+			}
+		}
+		return objectsFound;
+	}
+	
+	public double getTaxicabDistanceBetween(GameObject object1, GameObject object2)
+	{
+		return Math.abs(object1.getX() - object2.getX()) + Math.abs(object1.getY() - object2.getY());
 	}
 	
 	public int getWidth()
@@ -235,9 +337,12 @@ public class MainWindow
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			for(GameObject object : new ArrayList<GameObject>(objects))
+			synchronized(objects)
 			{
-				object.draw(g);
+				for(GameObject object : objects)
+				{
+					object.draw(g);
+				}
 			}
 		}
 		
