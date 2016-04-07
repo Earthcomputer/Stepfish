@@ -37,6 +37,7 @@ public class PlayerObject extends PhysicsObject
 		else
 		{
 			downwardsGravity.setSpeed(0);
+			setYVelocity(0);
 		}
 		updateGravity(downwardsGravityId, downwardsGravity);
 	}
@@ -46,14 +47,31 @@ public class PlayerObject extends PhysicsObject
 	{
 		super.update();
 		
+		if(getYVelocity() > 10) setYVelocity(10);
+		
 		if(GithubGame.getInstance().isKeyDown("moveLeft"))
 		{
-			setX(getX() - 10);
+			if(getXVelocity() > -10) accelerateX(-2);
+		}
+		else
+		{
+			if(getXVelocity() < 0) setXVelocity(Math.min(getXVelocity() + 5, 0));
 		}
 		
 		if(GithubGame.getInstance().isKeyDown("moveRight"))
 		{
-			setX(getX() + 10);
+			if(getXVelocity() < 10) accelerateX(2);
+		}
+		else
+		{
+			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
+		}
+		
+		if(GithubGame.getInstance().isKeyDown("jump") && state.needsSupport())
+		{
+			changeState(EnumPlayerState.AIR);
+			accelerateY(-10);
+			move(0, -1);
 		}
 		
 		if(GithubGame.getInstance().getWindow().isObjectCollidedWith(this, WallObject.class))
@@ -81,22 +99,47 @@ public class PlayerObject extends PhysicsObject
 			
 			Rectangle2D.Double rect = new Rectangle2D.Double(prevPos.getX(), prevPos.getY(), 16, 16);
 			
-			boolean success = false;
-			for(int i = 0; i < amtToMove; i++)
+			for(int i = 0; i <= amtToMove; i++)
 			{
+				// Try moving diagonally first
 				rect.x += movingX;
 				rect.y += movingY;
 				if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
 				{
-					success = true;
-					break;
+					// Try moving vertically by negating x
+					rect.x -= movingX;
+					if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+					{
+						// Try moving horizontally by un-negating x and negating y
+						rect.x += movingX;
+						rect.y -= movingY;
+						if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+						{
+							// Can't move anywhere, re-negate x
+							rect.x -= movingX;
+							
+							// Make both coords whole
+							rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
+							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
+						}
+						else
+						{
+							// Successfully moved horizontally, make y-coord whole
+							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
+						}
+					}
+					else
+					{
+						// Successfully moved vertically, make x-coord whole
+						rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
+					}
 				}
 			}
-			if(!success) setPos(pos);
+			setPos(new Pos(rect.x, rect.y));
 		}
 		
-		if(GithubGame.getInstance().getWindow()
-			.isShapeCollidedWith(new Line2D.Double(getX(), getY() + 17, getX() + 16, getY() + 17), WallObject.class))
+		if(GithubGame.getInstance().getWindow().isShapeCollidedWith(
+			new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16), WallObject.class))
 		{
 			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
 		}
