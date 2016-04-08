@@ -75,7 +75,7 @@ public class PlayerObject extends PhysicsObject
 		
 		if(githubGame.isKeyDown("moveLeft"))
 		{
-			if(getXVelocity() > -10) accelerateX(-2);
+			if(getXVelocity() > -7) setXVelocity(Math.max(getXVelocity() - 2, -7));
 		}
 		else
 		{
@@ -84,7 +84,7 @@ public class PlayerObject extends PhysicsObject
 		
 		if(githubGame.isKeyDown("moveRight"))
 		{
-			if(getXVelocity() < 10) accelerateX(2);
+			if(getXVelocity() < 7) setXVelocity(Math.min(getXVelocity() + 2, 7));
 		}
 		else
 		{
@@ -94,7 +94,7 @@ public class PlayerObject extends PhysicsObject
 		if(githubGame.isKeyDown("jump") && state.needsSupport())
 		{
 			changeState(EnumPlayerState.AIR);
-			accelerateY(-10);
+			accelerateY(-8);
 			move(0, -1);
 		}
 		
