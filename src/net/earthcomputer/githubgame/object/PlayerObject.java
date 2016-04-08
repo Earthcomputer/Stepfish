@@ -56,6 +56,16 @@ public class PlayerObject extends PhysicsObject
 		updateGravity(downwardsGravityId, downwardsGravity);
 	}
 	
+	public EnumElement getElement()
+	{
+		return element;
+	}
+	
+	public void setElement(EnumElement element)
+	{
+		this.element = element;
+	}
+	
 	@Override
 	public void update()
 	{

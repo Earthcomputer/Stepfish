@@ -17,4 +17,10 @@ public enum EnumElement
 	{
 		return color;
 	}
+	
+	public EnumElement nextElement()
+	{
+		EnumElement[] values = values();
+		return values[(ordinal() + 1) % values.length];
+	}
 }
