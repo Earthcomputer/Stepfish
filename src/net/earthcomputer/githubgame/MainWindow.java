@@ -24,6 +24,7 @@ import javax.swing.KeyStroke;
 
 import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
+import net.earthcomputer.githubgame.util.InstanceOfPredicate;
 import net.earthcomputer.githubgame.util.Predicate;
 
 public class MainWindow
@@ -45,6 +46,7 @@ public class MainWindow
 	
 	private int levelWidth;
 	private int levelHeight;
+	private String currentLevel;
 	
 	public MainWindow()
 	{
@@ -143,12 +145,13 @@ public class MainWindow
 			
 			this.levelWidth = levelWidth;
 			this.levelHeight = levelHeight;
-			this.objects.clear();
-			this.updateListeners.clear();
+			this.objectsToRemove.addAll(objects);
+			this.updateListenersToRemove.addAll(updateListeners);
 			for(int i = 0; i < objectCount; i++)
 			{
 				this.addObject(xs[i], ys[i], ids[i]);
 			}
+			this.currentLevel = levelName;
 		}
 		catch (IOException e)
 		{
@@ -156,6 +159,11 @@ public class MainWindow
 		}
 		
 		return true;
+	}
+	
+	public void restartLevel()
+	{
+		loadLevel(currentLevel);
 	}
 	
 	public void redraw()
@@ -249,14 +257,20 @@ public class MainWindow
 		}
 	}
 	
-	public List<GameObject> getObjectsThatCollideWith(Shape shape)
+	@SuppressWarnings("unchecked")
+	public <T extends GameObject> List<T> listObjects(Class<T> clazz)
+	{
+		return (List<T>) listObjects(new InstanceOfPredicate<GameObject>(clazz));
+	}
+	
+	public List<GameObject> listObjects(Predicate<GameObject> predicate)
 	{
 		List<GameObject> objectsFound = new ArrayList<GameObject>();
 		synchronized(objects)
 		{
 			for(GameObject object : objects)
 			{
-				if(object.isCollidedWith(shape))
+				if(predicate.apply(object))
 				{
 					objectsFound.add(object);
 				}
@@ -265,33 +279,35 @@ public class MainWindow
 		return objectsFound;
 	}
 	
-	public List<GameObject> getObjectsThatCollideWith(GameObject object)
+	public List<GameObject> getObjectsThatCollideWith(final Shape shape)
 	{
-		List<GameObject> objectsFound = new ArrayList<GameObject>();
-		synchronized(objects)
-		{
-			for(GameObject object1 : objects)
-			{
-				if(object1.isCollidedWith(object))
-				{
-					objectsFound.add(object1);
-				}
-			}
-		}
-		return objectsFound;
-	}
-	
-	public boolean isObjectCollidedWith(GameObject object, final Class<? extends GameObject> clazz)
-	{
-		return isObjectCollidedWith(object, new Predicate<GameObject>() {
+		return listObjects(new Predicate<GameObject>() {
 			
 			@Override
 			public boolean apply(GameObject input)
 			{
-				return clazz.isInstance(input);
+				return input.isCollidedWith(shape);
 			}
 			
 		});
+	}
+	
+	public List<GameObject> getObjectsThatCollideWith(final GameObject object)
+	{
+		return listObjects(new Predicate<GameObject>() {
+			
+			@Override
+			public boolean apply(GameObject input)
+			{
+				return input.isCollidedWith(object);
+			}
+			
+		});
+	}
+	
+	public boolean isObjectCollidedWith(GameObject object, final Class<? extends GameObject> clazz)
+	{
+		return isObjectCollidedWith(object, new InstanceOfPredicate<GameObject>(clazz));
 	}
 	
 	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> predicate)
@@ -306,15 +322,7 @@ public class MainWindow
 	
 	public boolean isShapeCollidedWith(Shape shape, final Class<? extends GameObject> clazz)
 	{
-		return isShapeCollidedWith(shape, new Predicate<GameObject>() {
-
-			@Override
-			public boolean apply(GameObject input)
-			{
-				return clazz.isInstance(input);
-			}
-			
-		});
+		return isShapeCollidedWith(shape, new InstanceOfPredicate<GameObject>(clazz));
 	}
 	
 	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> predicate)

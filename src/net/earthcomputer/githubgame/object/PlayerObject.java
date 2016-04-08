@@ -178,7 +178,7 @@ public class PlayerObject extends PhysicsObject
 			if(state.needsSupport()) changeState(EnumPlayerState.AIR);
 		}
 		
-		if(getY() >= window.getHeight()) System.out.println("You died!");
+		if(getY() >= window.getHeight()) window.restartLevel();
 	}
 	
 	@Override
