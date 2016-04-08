@@ -11,7 +11,7 @@ import net.earthcomputer.githubgame.object.EnumElement;
 import net.earthcomputer.githubgame.object.ExitObject;
 import net.earthcomputer.githubgame.object.FlyingCrossObject;
 import net.earthcomputer.githubgame.object.GameObject;
-import net.earthcomputer.githubgame.object.HoppingTriangleObject;
+import net.earthcomputer.githubgame.object.SwitchingSpikeObject;
 import net.earthcomputer.githubgame.object.PlayerObject;
 import net.earthcomputer.githubgame.object.StarObject;
 import net.earthcomputer.githubgame.object.WallObject;
@@ -88,7 +88,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		registerType(6, StarObject.class);
 		registerType(7, ElementSwitcherObject.class);
 		registerType(8, FlyingCrossObject.class);
-		registerType(9, HoppingTriangleObject.class);
+		registerType(9, SwitchingSpikeObject.class);
 		registerType(10, ExitObject.class);
 		
 		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);

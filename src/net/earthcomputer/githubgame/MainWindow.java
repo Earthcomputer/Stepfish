@@ -19,6 +19,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
@@ -164,6 +165,13 @@ public class MainWindow
 	public void restartLevel()
 	{
 		loadLevel(currentLevel);
+	}
+	
+	public void completeLevel()
+	{
+		JOptionPane.showMessageDialog(null, "Well Done! You completed the test level!", GithubGame.GAME_NAME,
+			JOptionPane.INFORMATION_MESSAGE);
+		restartLevel();
 	}
 	
 	public void redraw()

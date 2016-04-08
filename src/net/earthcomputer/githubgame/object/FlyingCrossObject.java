@@ -10,6 +10,7 @@ import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
 
 public class FlyingCrossObject extends GameObject implements IUpdateListener
 {
+	private static final int MOVE_SPEED = 3;
 	
 	private int frames = 0;
 	private double startingY;
@@ -51,7 +52,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 			case ATTACK_DOWN:
 				if(getY() < attackTargetY)
 				{
-					setY(Math.min(getY() + 5, attackTargetY));
+					setY(Math.min(getY() + MOVE_SPEED, attackTargetY));
 				}
 				else
 				{
@@ -61,7 +62,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 			case ATTACK_UP:
 				if(getY() > startingY)
 				{
-					setY(Math.max(getY() - 5, startingY));
+					setY(Math.max(getY() - MOVE_SPEED, startingY));
 				}
 				else
 				{
@@ -96,11 +97,11 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 					{
 						if(getX() < targetPlayer.getX())
 						{
-							setX(Math.min(getX() + 5, targetPlayer.getX()));
+							setX(Math.min(getX() + MOVE_SPEED, targetPlayer.getX()));
 						}
 						else if(getX() > targetPlayer.getX())
 						{
-							setX(Math.max(getX() - 5, targetPlayer.getX()));
+							setX(Math.max(getX() - MOVE_SPEED, targetPlayer.getX()));
 						}
 					}
 				}
