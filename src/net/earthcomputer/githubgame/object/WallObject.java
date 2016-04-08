@@ -32,4 +32,9 @@ public class WallObject extends GameObject
 		g.fillRect((int) getX(), (int) getY(), 16, 16);
 	}
 	
+	public EnumElement getElement()
+	{
+		return element;
+	}
+	
 }

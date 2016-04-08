@@ -4,7 +4,7 @@ import java.awt.Color;
 
 public enum EnumElement
 {
-	EARTH(new Color(165, 42, 42)), WATER(Color.BLUE), AIR(Color.CYAN), FIRE(Color.RED);
+	EARTH(Color.GREEN.darker()), WATER(Color.BLUE), AIR(Color.CYAN.darker()), FIRE(Color.ORANGE);
 	
 	private final Color color;
 	

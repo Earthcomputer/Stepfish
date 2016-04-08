@@ -24,6 +24,7 @@ import javax.swing.KeyStroke;
 
 import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
+import net.earthcomputer.githubgame.util.Predicate;
 
 public class MainWindow
 {
@@ -280,22 +281,48 @@ public class MainWindow
 		return objectsFound;
 	}
 	
-	public boolean isObjectCollidedWith(GameObject object, Class<? extends GameObject> clazz)
+	public boolean isObjectCollidedWith(GameObject object, final Class<? extends GameObject> clazz)
+	{
+		return isObjectCollidedWith(object, new Predicate<GameObject>() {
+			
+			@Override
+			public boolean apply(GameObject input)
+			{
+				return clazz.isInstance(input);
+			}
+			
+		});
+	}
+	
+	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> predicate)
 	{
 		List<GameObject> objects = getObjectsThatCollideWith(object);
 		for(GameObject object1 : objects)
 		{
-			if(clazz.isInstance(object1)) return true;
+			if(predicate.apply(object1)) return true;
 		}
 		return false;
 	}
 	
-	public boolean isShapeCollidedWith(Shape shape, Class<? extends GameObject> clazz)
+	public boolean isShapeCollidedWith(Shape shape, final Class<? extends GameObject> clazz)
+	{
+		return isShapeCollidedWith(shape, new Predicate<GameObject>() {
+
+			@Override
+			public boolean apply(GameObject input)
+			{
+				return clazz.isInstance(input);
+			}
+			
+		});
+	}
+	
+	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> predicate)
 	{
 		List<GameObject> objects = getObjectsThatCollideWith(shape);
 		for(GameObject object1 : objects)
 		{
-			if(clazz.isInstance(object1)) return true;
+			if(predicate.apply(object1)) return true;
 		}
 		return false;
 	}

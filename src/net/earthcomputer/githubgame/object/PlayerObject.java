@@ -8,13 +8,27 @@ import java.awt.geom.Rectangle2D;
 import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
+import net.earthcomputer.githubgame.util.Predicate;
 
 public class PlayerObject extends PhysicsObject
 {
 	
 	private EnumPlayerState state;
+	private EnumElement element;
 	private Velocity downwardsGravity;
 	private int downwardsGravityId;
+	
+	private Predicate<GameObject> wallCollisionPredicate = new Predicate<GameObject>() {
+		
+		@Override
+		public boolean apply(GameObject input)
+		{
+			if(!(input instanceof WallObject)) return false;
+			EnumElement wallElement = ((WallObject) input).getElement();
+			return wallElement == null || wallElement == element;
+		}
+		
+	};
 	
 	public PlayerObject(double x, double y)
 	{
@@ -22,6 +36,7 @@ public class PlayerObject extends PhysicsObject
 		downwardsGravity = Velocity.createFromSpeedAndDirection(0, 90);
 		downwardsGravityId = addGravity(downwardsGravity);
 		changeState(EnumPlayerState.AIR);
+		element = EnumElement.EARTH;
 		setCollisionMask(new MaskRectangle(16, 16));
 		setDepth(-1000);
 	}
@@ -73,7 +88,7 @@ public class PlayerObject extends PhysicsObject
 			move(0, -1);
 		}
 		
-		if(window.isObjectCollidedWith(this, WallObject.class))
+		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
 		{
 			Pos prevPos = getPreviousPos();
 			Pos pos = getPos();
@@ -103,16 +118,16 @@ public class PlayerObject extends PhysicsObject
 				// Try moving diagonally first
 				rect.x += movingX;
 				rect.y += movingY;
-				if(window.isShapeCollidedWith(rect, WallObject.class))
+				if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
 				{
 					// Try moving vertically by negating x
 					rect.x -= movingX;
-					if(window.isShapeCollidedWith(rect, WallObject.class))
+					if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
 					{
 						// Try moving horizontally by un-negating x and negating y
 						rect.x += movingX;
 						rect.y -= movingY;
-						if(window.isShapeCollidedWith(rect, WallObject.class))
+						if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
 						{
 							// Can't move anywhere, re-negate x
 							rect.x -= movingX;
@@ -144,7 +159,7 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
-			WallObject.class))
+			wallCollisionPredicate))
 		{
 			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
 		}
@@ -161,9 +176,9 @@ public class PlayerObject extends PhysicsObject
 	{
 		int x = (int) getX();
 		int y = (int) getY();
-		g.setColor(Color.ORANGE);
+		g.setColor(element.getColor());
 		g.fillRect(x, y, 16, 16);
-		g.setColor(Color.RED);
+		g.setColor(Color.WHITE);
 		g.fillRect(x + 8, y + 3, 2, 2);
 		g.fillRect(x + 12, y + 3, 2, 2);
 		g.fillRect(x + 8, y + 10, 8, 2);
