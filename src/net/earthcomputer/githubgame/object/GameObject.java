@@ -6,6 +6,8 @@ import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import net.earthcomputer.githubgame.GithubGame;
+import net.earthcomputer.githubgame.MainWindow;
 import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.collision.CollisionMask;
 
@@ -21,10 +23,15 @@ public abstract class GameObject
 	private boolean fastCollision = true;
 	private int depth = 0;
 	
+	protected GithubGame githubGame;
+	protected MainWindow window;
+	
 	/** Constructs a game component with the given co-ordinates */
 	public GameObject(double x, double y)
 	{
 		this.pos = new Pos(x, y);
+		this.githubGame = GithubGame.getInstance();
+		this.window = githubGame.getWindow();
 	}
 	
 	/** Gets the unmodifiable position of this game component */

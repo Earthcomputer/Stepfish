@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.IUpdateListener;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
 
@@ -44,9 +43,9 @@ public class StarObject extends GameObject implements IUpdateListener
 	@Override
 	public void update()
 	{
-		if(GithubGame.getInstance().getWindow().isObjectCollidedWith(this, PlayerObject.class))
+		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
-			GithubGame.getInstance().getWindow().removeObject(this);
+			window.removeObject(this);
 		}
 	}
 	

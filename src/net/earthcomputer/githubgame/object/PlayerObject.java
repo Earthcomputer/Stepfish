@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
-import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
@@ -49,7 +48,7 @@ public class PlayerObject extends PhysicsObject
 		
 		if(getYVelocity() > 10) setYVelocity(10);
 		
-		if(GithubGame.getInstance().isKeyDown("moveLeft"))
+		if(githubGame.isKeyDown("moveLeft"))
 		{
 			if(getXVelocity() > -10) accelerateX(-2);
 		}
@@ -58,7 +57,7 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() < 0) setXVelocity(Math.min(getXVelocity() + 5, 0));
 		}
 		
-		if(GithubGame.getInstance().isKeyDown("moveRight"))
+		if(githubGame.isKeyDown("moveRight"))
 		{
 			if(getXVelocity() < 10) accelerateX(2);
 		}
@@ -67,14 +66,14 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
 		}
 		
-		if(GithubGame.getInstance().isKeyDown("jump") && state.needsSupport())
+		if(githubGame.isKeyDown("jump") && state.needsSupport())
 		{
 			changeState(EnumPlayerState.AIR);
 			accelerateY(-10);
 			move(0, -1);
 		}
 		
-		if(GithubGame.getInstance().getWindow().isObjectCollidedWith(this, WallObject.class))
+		if(window.isObjectCollidedWith(this, WallObject.class))
 		{
 			Pos prevPos = getPreviousPos();
 			Pos pos = getPos();
@@ -99,21 +98,21 @@ public class PlayerObject extends PhysicsObject
 			
 			Rectangle2D.Double rect = new Rectangle2D.Double(prevPos.getX(), prevPos.getY(), 16, 16);
 			
-			for(int i = 0; i <= amtToMove; i++)
+			for(int i = 0; i < amtToMove; i++)
 			{
 				// Try moving diagonally first
 				rect.x += movingX;
 				rect.y += movingY;
-				if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+				if(window.isShapeCollidedWith(rect, WallObject.class))
 				{
 					// Try moving vertically by negating x
 					rect.x -= movingX;
-					if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+					if(window.isShapeCollidedWith(rect, WallObject.class))
 					{
 						// Try moving horizontally by un-negating x and negating y
 						rect.x += movingX;
 						rect.y -= movingY;
-						if(GithubGame.getInstance().getWindow().isShapeCollidedWith(rect, WallObject.class))
+						if(window.isShapeCollidedWith(rect, WallObject.class))
 						{
 							// Can't move anywhere, re-negate x
 							rect.x -= movingX;
@@ -121,25 +120,31 @@ public class PlayerObject extends PhysicsObject
 							// Make both coords whole
 							rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
 							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
+							// Stop moving
+							setSpeed(0);
 						}
 						else
 						{
 							// Successfully moved horizontally, make y-coord whole
 							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
+							// Stop vertical speed
+							setYVelocity(0);
 						}
 					}
 					else
 					{
 						// Successfully moved vertically, make x-coord whole
 						rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
+						// Stop horizontal speed
+						setXVelocity(0);
 					}
 				}
 			}
 			setPos(new Pos(rect.x, rect.y));
 		}
 		
-		if(GithubGame.getInstance().getWindow().isShapeCollidedWith(
-			new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16), WallObject.class))
+		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
+			WallObject.class))
 		{
 			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
 		}
@@ -148,7 +153,7 @@ public class PlayerObject extends PhysicsObject
 			if(state.needsSupport()) changeState(EnumPlayerState.AIR);
 		}
 		
-		if(getY() >= GithubGame.getInstance().getWindow().getHeight()) System.out.println("You died!");
+		if(getY() >= window.getHeight()) System.out.println("You died!");
 	}
 	
 	@Override
