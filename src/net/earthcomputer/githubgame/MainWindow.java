@@ -7,9 +7,6 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +20,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import net.earthcomputer.githubgame.Level.LevelObject;
 import net.earthcomputer.githubgame.object.GameObject;
+import net.earthcomputer.githubgame.object.ObjectTypes;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
 import net.earthcomputer.githubgame.util.InstanceOfPredicate;
 import net.earthcomputer.githubgame.util.Predicate;
@@ -32,7 +31,6 @@ public class MainWindow
 {
 	
 	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
-	private static final int CURRENT_LEVEL_VERSION = 0;
 	
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;
@@ -45,9 +43,7 @@ public class MainWindow
 	private Set<IUpdateListener> updateListenersToRemove = Collections.synchronizedSet(new HashSet<IUpdateListener>());
 	private Set<String> keysDown = new HashSet<String>();
 	
-	private int levelWidth;
-	private int levelHeight;
-	private String currentLevel;
+	private Level currentLevel;
 	
 	public MainWindow()
 	{
@@ -68,6 +64,7 @@ public class MainWindow
 				keysDown.clear();
 			}
 		});
+		theFrame.setResizable(false);
 		theFrame.pack();
 		theFrame.setLocationRelativeTo(null);
 		contentPane.requestFocus();
@@ -81,7 +78,7 @@ public class MainWindow
 	
 	public GameObject addObject(double x, double y, int id)
 	{
-		return addObject(x, y, GithubGame.objectCreatorsById.get(id));
+		return addObject(x, y, ObjectTypes.getCreatorById(id));
 	}
 	
 	public <T extends GameObject> T addObject(double x, double y, GameObjectCreator<T> creator)
@@ -111,55 +108,49 @@ public class MainWindow
 		updateListenersToRemove.add(updateListener);
 	}
 	
-	public boolean loadLevel(int levelId)
+	public boolean loadLevel(int id)
 	{
-		return loadLevel(GithubGame.levelNamesByIndex.get(levelId));
-	}
-	
-	public boolean loadLevel(String levelName)
-	{
-		DataInputStream input = new DataInputStream(new BufferedInputStream(
-			MainWindow.class.getResourceAsStream(String.format("/levels/%s.gglevel", levelName))));
-			
+		Level level;
 		try
 		{
-			if(input.readInt() != 0x4748474D) return false;
-			
-			int version = input.readUnsignedByte();
-			if(version > CURRENT_LEVEL_VERSION) return false;
-			
-			input.readUTF();
-			
-			int levelWidth = input.readUnsignedShort();
-			int levelHeight = input.readUnsignedShort();
-			
-			int objectCount = input.readUnsignedShort();
-			int[] xs = new int[objectCount];
-			int[] ys = new int[objectCount];
-			int[] ids = new int[objectCount];
-			for(int i = 0; i < objectCount; i++)
-			{
-				xs[i] = input.readInt();
-				ys[i] = input.readInt();
-				ids[i] = input.readUnsignedShort();
-			}
-			
-			this.levelWidth = levelWidth;
-			this.levelHeight = levelHeight;
-			this.objectsToRemove.addAll(objects);
-			this.updateListenersToRemove.addAll(updateListeners);
-			for(int i = 0; i < objectCount; i++)
-			{
-				this.addObject(xs[i], ys[i], ids[i]);
-			}
-			this.currentLevel = levelName;
+			level = Levels.loadLevel(id);
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			return false;
 		}
 		
+		loadLevel(level);
 		return true;
+	}
+	
+	public boolean loadLevel(String name)
+	{
+		Level level;
+		try
+		{
+			level = Levels.loadLevel(name);
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+		
+		loadLevel(level);
+		return true;
+	}
+	
+	public void loadLevel(Level level)
+	{
+		objectsToRemove.addAll(objects);
+		updateListenersToRemove.addAll(updateListeners);
+		
+		for(LevelObject object : level.objects)
+		{
+			addObject(object.x, object.y, object.id);
+		}
+		
+		this.currentLevel = level;
 	}
 	
 	public void restartLevel()
@@ -350,12 +341,12 @@ public class MainWindow
 	
 	public int getWidth()
 	{
-		return contentPane.getSize().width;
+		return currentLevel.width;
 	}
 	
 	public int getHeight()
 	{
-		return contentPane.getSize().height;
+		return currentLevel.height;
 	}
 	
 	public void registerKeyBinding(final String name, int key)
