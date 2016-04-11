@@ -46,6 +46,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);
 		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
 		registerKeyBinding("jump", KeyEvent.VK_SPACE);
+		registerKeyBinding("closeGui", KeyEvent.VK_ESCAPE);
 		
 		theWindow.loadLevel(0);
 		
@@ -92,6 +93,16 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 	public void registerKeyBinding(String name, int key)
 	{
 		theWindow.registerKeyBinding(name, key);
+	}
+	
+	public boolean isKeyPressed(String name)
+	{
+		return theWindow.isKeyPressed(name);
+	}
+	
+	public boolean isKeyReleased(String name)
+	{
+		return theWindow.isKeyReleased(name);
 	}
 	
 	public boolean isKeyDown(String name)

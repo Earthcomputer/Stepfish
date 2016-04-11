@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import net.earthcomputer.githubgame.Level.LevelObject;
+import net.earthcomputer.githubgame.gui.Gui;
 import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.object.ObjectTypes;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
@@ -41,9 +44,18 @@ public class MainWindow
 	private List<IUpdateListener> updateListeners = Collections.synchronizedList(new ArrayList<IUpdateListener>());
 	private Set<IUpdateListener> updateListenersToAdd = Collections.synchronizedSet(new HashSet<IUpdateListener>());
 	private Set<IUpdateListener> updateListenersToRemove = Collections.synchronizedSet(new HashSet<IUpdateListener>());
+	
+	private Set<String> pendingKeysPressed = Collections.synchronizedSet(new HashSet<String>());
+	private Set<String> keysPressed = new HashSet<String>();
 	private Set<String> keysDown = new HashSet<String>();
+	private Set<String> pendingKeysReleased = Collections.synchronizedSet(new HashSet<String>());
+	private Set<String> keysReleased = new HashSet<String>();
+	
+	private boolean paused = false;
 	
 	private Level currentLevel;
+	private Gui pendingGui;
+	private Gui openGui;
 	
 	public MainWindow()
 	{
@@ -61,8 +73,30 @@ public class MainWindow
 			@Override
 			public void windowLostFocus(WindowEvent e)
 			{
-				keysDown.clear();
+				// Both synchronized statements are necessary here to avoid a deadlock
+				synchronized(pendingKeysReleased)
+				{
+					synchronized(keysDown)
+					{
+						pendingKeysReleased.addAll(keysDown);
+					}
+				}
 			}
+		});
+		contentPane.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if(openGui != null) openGui.mousePressed(e.getX(), e.getY(), e.getButton());
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				if(openGui != null) openGui.mouseReleased(e.getX(), e.getY(), e.getButton());
+			}
+			
 		});
 		theFrame.setResizable(false);
 		theFrame.pack();
@@ -172,13 +206,18 @@ public class MainWindow
 	
 	public void updateTick()
 	{
-		synchronized(updateListeners)
+		if(!paused)
 		{
-			for(IUpdateListener updateListener : updateListeners)
+			synchronized(updateListeners)
 			{
-				updateListener.update();
+				for(IUpdateListener updateListener : updateListeners)
+				{
+					updateListener.update();
+				}
 			}
 		}
+		
+		if(openGui != null) openGui.updateTick();
 		
 		redraw();
 		
@@ -253,6 +292,32 @@ public class MainWindow
 					}
 				}
 			});
+		}
+		
+		keysPressed.clear();
+		synchronized(pendingKeysPressed)
+		{
+			keysPressed.addAll(pendingKeysPressed);
+			synchronized(keysDown)
+			{
+				keysDown.addAll(pendingKeysPressed);
+			}
+			pendingKeysPressed.clear();
+		}
+		keysReleased.clear();
+		synchronized(pendingKeysReleased)
+		{
+			keysReleased.addAll(pendingKeysReleased);
+			synchronized(keysDown)
+			{
+				keysDown.removeAll(pendingKeysReleased);
+			}
+			pendingKeysReleased.clear();
+		}
+		
+		if(pendingGui != openGui)
+		{
+			openGuiDangerously(pendingGui);
 		}
 	}
 	
@@ -349,6 +414,33 @@ public class MainWindow
 		return currentLevel.height;
 	}
 	
+	public void openGui(Gui gui)
+	{
+		pendingGui = gui;
+	}
+	
+	private void openGuiDangerously(Gui gui)
+	{
+		if(openGui != null) openGui.onClosed();
+		
+		this.openGui = gui;
+		
+		if(gui == null)
+		{
+			this.paused = false;
+		}
+		else
+		{
+			this.paused = gui.pausesGame();
+			gui.validate(contentPane.getWidth(), contentPane.getHeight());
+		}
+	}
+	
+	public void closeGui()
+	{
+		openGui(null);
+	}
+	
 	public void registerKeyBinding(final String name, int key)
 	{
 		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0), name + "_pressed");
@@ -358,7 +450,10 @@ public class MainWindow
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				keysDown.add(name);
+				if(!isKeyDown(name))
+				{
+					pendingKeysPressed.add(name);
+				}
 			}
 		});
 		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), name + "_released");
@@ -368,14 +463,27 @@ public class MainWindow
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				keysDown.remove(name);
+				pendingKeysReleased.add(name);
 			}
 		});
 	}
 	
+	public boolean isKeyPressed(String name)
+	{
+		return keysPressed.contains(name);
+	}
+	
+	public boolean isKeyReleased(String name)
+	{
+		return keysReleased.contains(name);
+	}
+	
 	public boolean isKeyDown(String name)
 	{
-		return keysDown.contains(name);
+		synchronized(keysDown)
+		{
+			return keysDown.contains(name);
+		}
 	}
 	
 	private class CustomContentPane extends JPanel
@@ -388,16 +496,21 @@ public class MainWindow
 		{
 			super.paintComponent(g);
 			
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, getWidth(), getHeight());
-			
-			synchronized(objects)
+			if(openGui == null || openGui.shouldDrawLevelBackground())
 			{
-				for(GameObject object : objects)
+				g.setColor(Color.BLACK);
+				g.fillRect(0, 0, getWidth(), getHeight());
+				
+				synchronized(objects)
 				{
-					object.draw(g);
+					for(GameObject object : objects)
+					{
+						object.draw(g);
+					}
 				}
 			}
+			
+			if(openGui != null) openGui.drawScreen(g);
 		}
 		
 	}

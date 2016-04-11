@@ -8,6 +8,7 @@ import java.awt.geom.Rectangle2D;
 import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
+import net.earthcomputer.githubgame.gui.GuiPauseMenu;
 import net.earthcomputer.githubgame.util.Predicate;
 
 public class PlayerObject extends PhysicsObject
@@ -91,11 +92,16 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
 		}
 		
-		if(githubGame.isKeyDown("jump") && state.needsSupport())
+		if(githubGame.isKeyPressed("jump") && state.needsSupport())
 		{
 			changeState(EnumPlayerState.AIR);
 			accelerateY(-8);
 			move(0, -1);
+		}
+		
+		if(githubGame.isKeyPressed("closeGui"))
+		{
+			window.openGui(new GuiPauseMenu());
 		}
 		
 		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
