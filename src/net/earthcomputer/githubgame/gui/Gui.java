@@ -50,10 +50,16 @@ public abstract class Gui
 			g.fillRect(0, 0, width, height);
 		}
 		
+		drawMiddleLayer(g);
+		
 		for(Button button : buttonList)
 		{
 			button.draw(g);
 		}
+	}
+	
+	protected void drawMiddleLayer(Graphics g)
+	{
 	}
 	
 	public boolean shouldDrawLevelBackground()

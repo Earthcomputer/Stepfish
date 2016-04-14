@@ -3,9 +3,8 @@ package net.earthcomputer.githubgame.gui;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 
-import javax.imageio.ImageIO;
+import net.earthcomputer.githubgame.util.Images;
 
 public abstract class Button
 {
@@ -18,20 +17,7 @@ public abstract class Button
 	
 	public Button(String image, int x, int y)
 	{
-		this(loadImage(image), x, y);
-	}
-	
-	private static BufferedImage loadImage(String location)
-	{
-		try
-		{
-			return ImageIO
-				.read(new BufferedInputStream(Button.class.getResourceAsStream("/textures/" + location + ".png")));
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException("Unable to load image \"" + location + "\"", e);
-		}
+		this(Images.loadImage(image), x, y);
 	}
 	
 	public Button(BufferedImage image, int x, int y)

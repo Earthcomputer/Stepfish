@@ -1,28 +1,17 @@
 package net.earthcomputer.githubgame.gui;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 
-import javax.imageio.ImageIO;
+import net.earthcomputer.githubgame.util.Images;
 
 public class GuiPauseMenu extends Gui
 {
 	
-	private static final BufferedImage resumeImage;
-	
-	static
-	{
-		try
-		{
-			resumeImage = ImageIO
-				.read(new BufferedInputStream(GuiPauseMenu.class.getResourceAsStream("/textures/resume.png")));
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+	private static final BufferedImage backgroundImage = Images.loadImage("pause_background");
+	private static final BufferedImage resumeImage = Images.loadImage("resume");
+	private static final BufferedImage restartImage = Images.loadImage("restart");
 	
 	@Override
 	public void init()
@@ -34,13 +23,23 @@ public class GuiPauseMenu extends Gui
 				window.closeGui();
 			}
 		});
+		this.buttonList.add(new Button(restartImage, width / 2 - restartImage.getWidth() / 2, 250) {
+			@Override
+			protected void onPressed()
+			{
+				window.closeGui();
+				window.restartLevel();
+			}
+		});
 	}
 	
 	@Override
-	public void drawScreen(Graphics g)
+	protected void drawMiddleLayer(Graphics g)
 	{
-		super.drawScreen(g);
-		g.drawString("Paused!", 20, 20);
+		Rectangle clipBounds = g.getClipBounds();
+		int x = (int) clipBounds.getCenterX() - backgroundImage.getWidth() / 2;
+		int y = (int) clipBounds.getCenterY() - backgroundImage.getHeight() / 2;
+		g.drawImage(backgroundImage, x, y, null);
 	}
 	
 	@Override
