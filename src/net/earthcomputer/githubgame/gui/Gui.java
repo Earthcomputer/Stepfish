@@ -1,6 +1,9 @@
 package net.earthcomputer.githubgame.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.MainWindow;
@@ -12,6 +15,8 @@ public abstract class Gui
 	protected MainWindow window;
 	protected int width;
 	protected int height;
+	
+	protected List<Button> buttonList = new ArrayList<Button>();
 	
 	protected Gui()
 	{
@@ -31,12 +36,24 @@ public abstract class Gui
 	{
 		this.width = width;
 		this.height = height;
+		
+		this.buttonList.clear();
+		
 		init();
 	}
 	
 	public void drawScreen(Graphics g)
 	{
-		g.drawRect(0, 0, width, height);
+		if(!shouldDrawLevelBackground())
+		{
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, width, height);
+		}
+		
+		for(Button button : buttonList)
+		{
+			button.draw(g);
+		}
 	}
 	
 	public boolean shouldDrawLevelBackground()
@@ -51,6 +68,10 @@ public abstract class Gui
 	
 	public void mousePressed(int x, int y, int button)
 	{
+		for(Button button1 : buttonList)
+		{
+			button1.mousePressed(x, y, button);
+		}
 	}
 	
 	public void mouseReleased(int x, int y, int button)
