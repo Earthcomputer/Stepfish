@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.MainWindow;
+import net.earthcomputer.githubgame.util.Keyboard;
 
 public abstract class Gui
 {
@@ -86,7 +87,7 @@ public abstract class Gui
 	
 	public void updateTick()
 	{
-		if(githubGame.isKeyPressed("closeGui")) window.closeGui();
+		if(Keyboard.isKeyPressed("closeGui")) window.closeGui();
 	}
 	
 }

@@ -95,21 +95,6 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		theWindow.registerKeyBinding(name, key);
 	}
 	
-	public boolean isKeyPressed(String name)
-	{
-		return theWindow.isKeyPressed(name);
-	}
-	
-	public boolean isKeyReleased(String name)
-	{
-		return theWindow.isKeyReleased(name);
-	}
-	
-	public boolean isKeyDown(String name)
-	{
-		return theWindow.isKeyDown(name);
-	}
-	
 	@Override
 	public void uncaughtException(Thread t, Throwable e)
 	{

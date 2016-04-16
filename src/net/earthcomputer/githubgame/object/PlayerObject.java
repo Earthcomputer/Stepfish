@@ -9,6 +9,7 @@ import net.earthcomputer.githubgame.geom.Pos;
 import net.earthcomputer.githubgame.geom.Velocity;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
 import net.earthcomputer.githubgame.gui.GuiPauseMenu;
+import net.earthcomputer.githubgame.util.Keyboard;
 import net.earthcomputer.githubgame.util.Predicate;
 
 public class PlayerObject extends PhysicsObject
@@ -74,7 +75,7 @@ public class PlayerObject extends PhysicsObject
 		
 		if(getYVelocity() > 10) setYVelocity(10);
 		
-		if(githubGame.isKeyDown("moveLeft"))
+		if(Keyboard.isKeyDown("moveLeft"))
 		{
 			if(getXVelocity() > -7) setXVelocity(Math.max(getXVelocity() - 2, -7));
 		}
@@ -83,7 +84,7 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() < 0) setXVelocity(Math.min(getXVelocity() + 5, 0));
 		}
 		
-		if(githubGame.isKeyDown("moveRight"))
+		if(Keyboard.isKeyDown("moveRight"))
 		{
 			if(getXVelocity() < 7) setXVelocity(Math.min(getXVelocity() + 2, 7));
 		}
@@ -92,14 +93,14 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
 		}
 		
-		if(githubGame.isKeyPressed("jump") && state.needsSupport())
+		if(Keyboard.isKeyPressed("jump") && state.needsSupport())
 		{
 			changeState(EnumPlayerState.AIR);
 			accelerateY(-8);
 			move(0, -1);
 		}
 		
-		if(githubGame.isKeyPressed("closeGui"))
+		if(Keyboard.isKeyPressed("closeGui"))
 		{
 			window.openGui(new GuiPauseMenu());
 		}

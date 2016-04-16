@@ -28,6 +28,7 @@ import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.object.ObjectTypes;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
 import net.earthcomputer.githubgame.util.InstanceOfPredicate;
+import net.earthcomputer.githubgame.util.Keyboard;
 import net.earthcomputer.githubgame.util.Predicate;
 
 public class MainWindow
@@ -44,12 +45,6 @@ public class MainWindow
 	private List<IUpdateListener> updateListeners = Collections.synchronizedList(new ArrayList<IUpdateListener>());
 	private Set<IUpdateListener> updateListenersToAdd = Collections.synchronizedSet(new HashSet<IUpdateListener>());
 	private Set<IUpdateListener> updateListenersToRemove = Collections.synchronizedSet(new HashSet<IUpdateListener>());
-	
-	private Set<String> pendingKeysPressed = Collections.synchronizedSet(new HashSet<String>());
-	private Set<String> keysPressed = new HashSet<String>();
-	private Set<String> keysDown = new HashSet<String>();
-	private Set<String> pendingKeysReleased = Collections.synchronizedSet(new HashSet<String>());
-	private Set<String> keysReleased = new HashSet<String>();
 	
 	private boolean paused = false;
 	
@@ -73,14 +68,7 @@ public class MainWindow
 			@Override
 			public void windowLostFocus(WindowEvent e)
 			{
-				// Both synchronized statements are necessary here to avoid a deadlock
-				synchronized(pendingKeysReleased)
-				{
-					synchronized(keysDown)
-					{
-						pendingKeysReleased.addAll(keysDown);
-					}
-				}
+				Keyboard.clearKeys();
 			}
 		});
 		contentPane.addMouseListener(new MouseAdapter() {
@@ -206,6 +194,8 @@ public class MainWindow
 	
 	public void updateTick()
 	{
+		Keyboard.updateTick();
+		
 		if(!paused)
 		{
 			synchronized(updateListeners)
@@ -292,27 +282,6 @@ public class MainWindow
 					}
 				}
 			});
-		}
-		
-		keysPressed.clear();
-		synchronized(pendingKeysPressed)
-		{
-			keysPressed.addAll(pendingKeysPressed);
-			synchronized(keysDown)
-			{
-				keysDown.addAll(pendingKeysPressed);
-			}
-			pendingKeysPressed.clear();
-		}
-		keysReleased.clear();
-		synchronized(pendingKeysReleased)
-		{
-			keysReleased.addAll(pendingKeysReleased);
-			synchronized(keysDown)
-			{
-				keysDown.removeAll(pendingKeysReleased);
-			}
-			pendingKeysReleased.clear();
 		}
 		
 		if(pendingGui != openGui)
@@ -450,10 +419,7 @@ public class MainWindow
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if(!isKeyDown(name))
-				{
-					pendingKeysPressed.add(name);
-				}
+				Keyboard.pressKey(name);
 			}
 		});
 		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), name + "_released");
@@ -463,27 +429,9 @@ public class MainWindow
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				pendingKeysReleased.add(name);
+				Keyboard.releaseKey(name);
 			}
 		});
-	}
-	
-	public boolean isKeyPressed(String name)
-	{
-		return keysPressed.contains(name);
-	}
-	
-	public boolean isKeyReleased(String name)
-	{
-		return keysReleased.contains(name);
-	}
-	
-	public boolean isKeyDown(String name)
-	{
-		synchronized(keysDown)
-		{
-			return keysDown.contains(name);
-		}
 	}
 	
 	private class CustomContentPane extends JPanel
