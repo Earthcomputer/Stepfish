@@ -10,6 +10,8 @@ public class Keyboard
 	private static final Set<String> keysDown = new HashSet<String>();
 	private static final Set<String> pendingKeysPressed = new HashSet<String>();
 	private static final Set<String> pendingKeysReleased = new HashSet<String>();
+	private static boolean enableRepeatEvents = false;
+	
 	private static final Object SYNC_LOCK = new Object();
 	
 	private Keyboard()
@@ -44,7 +46,7 @@ public class Keyboard
 	{
 		synchronized(SYNC_LOCK)
 		{
-			pendingKeysPressed.add(keyBinding);
+			if(enableRepeatEvents || !keysDown.contains(keyBinding)) pendingKeysPressed.add(keyBinding);
 		}
 	}
 	
@@ -61,6 +63,22 @@ public class Keyboard
 		synchronized(SYNC_LOCK)
 		{
 			pendingKeysReleased.addAll(keysDown);
+		}
+	}
+	
+	public static void enableRepeatEvents()
+	{
+		synchronized(SYNC_LOCK)
+		{
+			enableRepeatEvents = true;
+		}
+	}
+	
+	public static void disableRepeatEvents()
+	{
+		synchronized(SYNC_LOCK)
+		{
+			enableRepeatEvents = false;
 		}
 	}
 	
