@@ -9,6 +9,8 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -57,8 +59,9 @@ public class MainWindow
 	public MainWindow()
 	{
 		theFrame = new JFrame(
-			GithubGame.randomGenTitle() + " (" + GithubGame.GAME_NAME + " " + GithubGame.GAME_VERSION + ")");
-			
+			GithubGame.randomGenTitle(GithubGame.GAME_VERSION.hashCode() + 31 * GithubGame.GAME_NAME.hashCode()) + " ("
+				+ GithubGame.GAME_NAME + " " + GithubGame.GAME_VERSION + ")");
+				
 		theFrame.setContentPane(contentPane = new CustomContentPane());
 		contentPane.setPreferredSize(PREFERRED_SIZE);
 		theFrame.addWindowListener(new WindowAdapter() {
@@ -86,6 +89,15 @@ public class MainWindow
 			public void mouseReleased(MouseEvent e)
 			{
 				if(openGui != null) openGui.mouseReleased(e.getX(), e.getY(), e.getButton());
+			}
+			
+		});
+		contentPane.addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e)
+			{
+				if(openGui != null) openGui.mouseScrolled((float) e.getPreciseWheelRotation());
 			}
 			
 		});
@@ -437,7 +449,8 @@ public class MainWindow
 		});
 	}
 	
-	public Point getMouseLocation() {
+	public Point getMouseLocation()
+	{
 		Point mouseLocation = new Point(MouseInfo.getPointerInfo().getLocation());
 		Point compLocation = contentPane.getLocationOnScreen();
 		mouseLocation.x -= compLocation.x;

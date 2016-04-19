@@ -2,6 +2,7 @@ package net.earthcomputer.githubgame.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,9 +54,11 @@ public abstract class Gui
 		
 		drawMiddleLayer(g);
 		
+		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
+		
 		for(Button button : buttonList)
 		{
-			button.draw(g);
+			button.draw(mousePos.x, mousePos.y, g);
 		}
 	}
 	
@@ -82,6 +85,10 @@ public abstract class Gui
 	}
 	
 	public void mouseReleased(int x, int y, int button)
+	{
+	}
+	
+	public void mouseScrolled(float amt)
 	{
 	}
 	

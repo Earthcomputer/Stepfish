@@ -2,7 +2,10 @@ package net.earthcomputer.githubgame.gui;
 
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.font.TextAttribute;
 import java.io.BufferedInputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FontManager
 {
@@ -12,11 +15,13 @@ public class FontManager
 	{
 		try
 		{
+			Map<TextAttribute, Object> attributes = new HashMap<TextAttribute, Object>();
+			attributes.put(TextAttribute.TRACKING, 0.5);
 			galacticFont = Font
 				.createFont(Font.TRUETYPE_FONT,
 					new BufferedInputStream(
 						FontManager.class.getResourceAsStream("/misc/standard_galactic_alphabet.ttf")))
-				.deriveFont(Font.PLAIN, 14);
+				.deriveFont(Font.PLAIN, 24).deriveFont(attributes);
 		}
 		catch (Exception e)
 		{

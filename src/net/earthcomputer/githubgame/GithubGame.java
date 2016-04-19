@@ -1,7 +1,5 @@
 package net.earthcomputer.githubgame;
 
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
@@ -23,6 +21,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 	/** The singleton instance */
 	private static GithubGame INSTANCE;
 	
+	public String currentUser;
 	private MainWindow theWindow;
 	private boolean runningLoop = false;
 	
@@ -109,9 +108,9 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		shutdown();
 	}
 	
-	public static String randomGenTitle()
+	public static String randomGenTitle(int seed)
 	{
-		Random rand = new Random(GAME_VERSION.hashCode() + 31 * GAME_NAME.hashCode());
+		Random rand = new Random(seed);
 		char[] chars = new char[16];
 		for(int i = 0; i < chars.length; i++)
 		{

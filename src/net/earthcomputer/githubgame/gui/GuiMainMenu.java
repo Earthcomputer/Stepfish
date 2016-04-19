@@ -3,7 +3,6 @@ package net.earthcomputer.githubgame.gui;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.util.Images;
 import net.earthcomputer.githubgame.util.Keyboard;
 
@@ -21,11 +20,11 @@ public class GuiMainMenu extends Gui
 			@Override
 			protected void onPressed()
 			{
-				window.openGui(new GuiSelectName());
+				window.openGui(new GuiSelectName(GuiMainMenu.this));
 			}
 			
 			@Override
-			public void draw(Graphics g)
+			public void draw(int mouseX, int mouseY, Graphics g)
 			{
 				int halfExtraSize = (int) (Math.sin((double) frameCount / 4) * 5);
 				g.drawImage(getImage(), getX() - halfExtraSize, getY() - halfExtraSize,

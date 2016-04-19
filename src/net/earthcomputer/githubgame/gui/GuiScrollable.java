@@ -2,13 +2,15 @@ package net.earthcomputer.githubgame.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 
+import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.util.Keyboard;
 
 public class GuiScrollable extends Gui
 {
-	private static final int SCROLL_BAR_WIDTH = 6;
+	private static final int SCROLL_BAR_WIDTH = 7;
 	
 	private Gui prevGui;
 	private int amtScrolled;
@@ -17,7 +19,7 @@ public class GuiScrollable extends Gui
 	private int scrollBarBottom;
 	private int scrollBarHeight;
 	private int contentHeight;
-	private int firstMouseY;
+	private int firstMouseY = -1;
 	private int firstScrollBarPos = -1;
 	
 	public GuiScrollable(Gui prevGui, int contentHeight)
@@ -64,16 +66,31 @@ public class GuiScrollable extends Gui
 	@Override
 	public void drawScreen(Graphics g)
 	{
-		g.setColor(Color.BLUE.darker());
-		g.fillRect(width - SCROLL_BAR_WIDTH, 0, SCROLL_BAR_WIDTH, height);
-		g.setColor(Color.BLUE);
-		g.fillRect(width - SCROLL_BAR_WIDTH, scrollBarTop, SCROLL_BAR_WIDTH, scrollBarHeight);
-		g.setColor(Color.CYAN);
-		g.drawRect(width - SCROLL_BAR_WIDTH, scrollBarTop, SCROLL_BAR_WIDTH, scrollBarHeight);
+		if(!shouldDrawLevelBackground())
+		{
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, width, height);
+		}
 		
 		g.translate(0, -amtScrolled);
 		
-		super.drawScreen(g);
+		drawMiddleLayer(g);
+		
+		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
+		
+		for(Button button : buttonList)
+		{
+			button.draw(mousePos.x, mousePos.y + amtScrolled, g);
+		}
+		
+		g.translate(0, amtScrolled);
+		
+		g.setColor(Color.BLUE);
+		g.fillRect(width - SCROLL_BAR_WIDTH, 0, SCROLL_BAR_WIDTH, height);
+		g.setColor(Color.CYAN.darker());
+		g.fillRect(width - SCROLL_BAR_WIDTH, scrollBarTop, SCROLL_BAR_WIDTH - 1, scrollBarHeight);
+		g.setColor(Color.CYAN);
+		g.drawRect(width - SCROLL_BAR_WIDTH, scrollBarTop, SCROLL_BAR_WIDTH - 1, scrollBarHeight);
 	}
 	
 	@Override
@@ -81,7 +98,6 @@ public class GuiScrollable extends Gui
 	{
 		if(button == MouseEvent.BUTTON1)
 		{
-			firstScrollBarPos = amtScrolled;
 			if(x >= width - SCROLL_BAR_WIDTH && x < width)
 			{
 				if(y < scrollBarTop || y >= scrollBarBottom)
@@ -93,14 +109,26 @@ public class GuiScrollable extends Gui
 			}
 			else
 			{
-				mousePressedInView(x, y, button);
+				mousePressedInView(x, y - amtScrolled, button);
 			}
 		}
 	}
 	
+	@Override
+	public void mouseReleased(int x, int y, int button)
+	{
+		firstScrollBarPos = firstMouseY = -1;
+	}
+	
+	@Override
+	public void mouseScrolled(float amt)
+	{
+		scrollBy((int) (amt * 40));
+	}
+	
 	protected void mousePressedInView(int x, int y, int button)
 	{
-	
+		super.mousePressed(x, y, button);
 	}
 	
 	@Override

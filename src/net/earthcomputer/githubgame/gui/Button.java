@@ -29,7 +29,15 @@ public abstract class Button
 		this.height = image.getHeight();
 	}
 	
-	public void draw(Graphics g)
+	protected Button(int x, int y, int width, int height)
+	{
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	}
+	
+	public void draw(int mouseX, int mouseY, Graphics g)
 	{
 		g.drawImage(image, x, y, null);
 	}
@@ -38,7 +46,7 @@ public abstract class Button
 	{
 		if(button == MouseEvent.BUTTON1)
 		{
-			if(x >= this.x && y >= this.y && x < this.x + this.width && y < this.y + this.height)
+			if(isHovered(x, y))
 			{
 				onPressed();
 				return true;
@@ -48,6 +56,11 @@ public abstract class Button
 	}
 	
 	protected abstract void onPressed();
+	
+	public boolean isHovered(int mouseX, int mouseY)
+	{
+		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+	}
 	
 	public BufferedImage getImage()
 	{
