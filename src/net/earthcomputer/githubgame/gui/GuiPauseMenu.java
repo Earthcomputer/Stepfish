@@ -12,18 +12,21 @@ public class GuiPauseMenu extends Gui
 	private static final BufferedImage backgroundImage = Images.loadImage("pause_background");
 	private static final BufferedImage resumeImage = Images.loadImage("resume");
 	private static final BufferedImage restartImage = Images.loadImage("restart");
+	private static final BufferedImage homeImage = Images.loadImage("home");
 	
 	@Override
 	public void init()
 	{
-		this.buttonList.add(new Button(resumeImage, width / 2 - resumeImage.getWidth() / 2, 100) {
+		int resumeX = width / 2 - resumeImage.getWidth() / 2;
+		this.buttonList.add(new Button(resumeImage, resumeX, height / 2 - resumeImage.getHeight() / 2) {
 			@Override
 			protected void onPressed()
 			{
 				window.closeGui();
 			}
 		});
-		this.buttonList.add(new Button(restartImage, width / 2 - restartImage.getWidth() / 2, 250) {
+		this.buttonList.add(new Button(restartImage, resumeX - restartImage.getWidth() - 20,
+			height / 2 - restartImage.getHeight() / 2) {
 			@Override
 			protected void onPressed()
 			{
@@ -31,6 +34,14 @@ public class GuiPauseMenu extends Gui
 				window.restartLevel();
 			}
 		});
+		this.buttonList
+			.add(new Button(homeImage, resumeX + homeImage.getWidth() + 20, height / 2 - homeImage.getHeight() / 2) {
+				@Override
+				protected void onPressed()
+				{
+					window.openGui(new GuiMainMenu());
+				}
+			});
 	}
 	
 	@Override
