@@ -1,7 +1,11 @@
 package net.earthcomputer.githubgame;
 
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.util.Random;
 
+import net.earthcomputer.githubgame.gui.GuiMainMenu;
 import net.earthcomputer.githubgame.object.ObjectTypes;
 
 /** The main class. We still need to decide what the game is about :,(
@@ -10,7 +14,7 @@ import net.earthcomputer.githubgame.object.ObjectTypes;
 public class GithubGame implements Thread.UncaughtExceptionHandler
 {
 	
-	public static final String GAME_NAME = "Github Game";
+	public static final String GAME_NAME = "Galactic Game";
 	public static final String GAME_VERSION = "0.1 Alpha";
 	public static final int TICKRATE = 30;
 	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
@@ -49,6 +53,7 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		registerKeyBinding("closeGui", KeyEvent.VK_ESCAPE);
 		
 		theWindow.loadLevel(0);
+		theWindow.openGui(new GuiMainMenu());
 		
 		new Thread(new Runnable() {
 			@Override
@@ -102,6 +107,27 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		System.err.println("Game version: " + GAME_VERSION);
 		e.printStackTrace();
 		shutdown();
+	}
+	
+	public static String randomGenTitle()
+	{
+		Random rand = new Random(GAME_VERSION.hashCode() + 31 * GAME_NAME.hashCode());
+		char[] chars = new char[16];
+		for(int i = 0; i < chars.length; i++)
+		{
+			int ascii = rand.nextInt(52);
+			if(ascii < 26)
+			{
+				ascii += 'A';
+			}
+			else
+			{
+				ascii -= 26;
+				ascii += 'a';
+			}
+			chars[i] = (char) ascii;
+		}
+		return new String(chars);
 	}
 	
 }

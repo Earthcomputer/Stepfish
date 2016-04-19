@@ -3,6 +3,8 @@ package net.earthcomputer.githubgame;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -54,8 +56,9 @@ public class MainWindow
 	
 	public MainWindow()
 	{
-		theFrame = new JFrame(GithubGame.GAME_NAME + " " + GithubGame.GAME_VERSION);
-		
+		theFrame = new JFrame(
+			GithubGame.randomGenTitle() + " (" + GithubGame.GAME_NAME + " " + GithubGame.GAME_VERSION + ")");
+			
 		theFrame.setContentPane(contentPane = new CustomContentPane());
 		contentPane.setPreferredSize(PREFERRED_SIZE);
 		theFrame.addWindowListener(new WindowAdapter() {
@@ -432,6 +435,14 @@ public class MainWindow
 				Keyboard.releaseKey(name);
 			}
 		});
+	}
+	
+	public Point getMouseLocation() {
+		Point mouseLocation = new Point(MouseInfo.getPointerInfo().getLocation());
+		Point compLocation = contentPane.getLocationOnScreen();
+		mouseLocation.x -= compLocation.x;
+		mouseLocation.y -= compLocation.y;
+		return mouseLocation;
 	}
 	
 	private class CustomContentPane extends JPanel
