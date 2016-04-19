@@ -93,6 +93,11 @@ public class Levels
 		return new Level(levelName, levelWidth, levelHeight, objects);
 	}
 	
+	public static int getLevelCount()
+	{
+		return levelNamesById.size();
+	}
+	
 	public static class LevelFormatException extends Exception
 	{
 		private static final long serialVersionUID = 5901910426359021333L;

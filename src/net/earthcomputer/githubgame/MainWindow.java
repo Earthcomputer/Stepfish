@@ -28,6 +28,7 @@ import javax.swing.KeyStroke;
 
 import net.earthcomputer.githubgame.Level.LevelObject;
 import net.earthcomputer.githubgame.gui.Gui;
+import net.earthcomputer.githubgame.gui.GuiCompleteGame;
 import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.object.ObjectTypes;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
@@ -53,6 +54,7 @@ public class MainWindow
 	private boolean paused = false;
 	
 	private Level currentLevel;
+	private int currentLevelIndex;
 	private Gui pendingGui;
 	private Gui openGui;
 	
@@ -157,27 +159,12 @@ public class MainWindow
 			return false;
 		}
 		
+		currentLevelIndex = id;
 		loadLevel(level);
 		return true;
 	}
 	
-	public boolean loadLevel(String name)
-	{
-		Level level;
-		try
-		{
-			level = Levels.loadLevel(name);
-		}
-		catch (Exception e)
-		{
-			return false;
-		}
-		
-		loadLevel(level);
-		return true;
-	}
-	
-	public void loadLevel(Level level)
+	private void loadLevel(Level level)
 	{
 		objectsToRemove.addAll(objects);
 		updateListenersToRemove.addAll(updateListeners);
@@ -197,9 +184,19 @@ public class MainWindow
 	
 	public void completeLevel()
 	{
-		JOptionPane.showMessageDialog(null, "Well Done! You completed the test level!", GithubGame.GAME_NAME,
-			JOptionPane.INFORMATION_MESSAGE);
-		restartLevel();
+		if(currentLevelIndex == Levels.getLevelCount() - 1)
+		{
+			completeGame();
+		}
+		else
+		{
+			loadLevel(currentLevelIndex + 1);
+		}
+	}
+	
+	public void completeGame()
+	{
+		openGui(new GuiCompleteGame());
 	}
 	
 	public void redraw()

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.util.Keyboard;
@@ -22,6 +24,8 @@ public class GuiScrollable extends Gui
 	private int firstMouseY = -1;
 	private int firstScrollBarPos = -1;
 	
+	protected List<Button> staticButtonList = new ArrayList<Button>();
+	
 	public GuiScrollable(Gui prevGui, int contentHeight)
 	{
 		this.prevGui = prevGui;
@@ -32,6 +36,7 @@ public class GuiScrollable extends Gui
 	protected void init()
 	{
 		recalcFields();
+		staticButtonList.clear();
 	}
 	
 	private void recalcFields()
@@ -72,11 +77,16 @@ public class GuiScrollable extends Gui
 			g.fillRect(0, 0, width, height);
 		}
 		
+		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
+		
+		for(Button button : staticButtonList)
+		{
+			button.draw(mousePos.x, mousePos.y, g);
+		}
+		
 		g.translate(0, -amtScrolled);
 		
 		drawMiddleLayer(g);
-		
-		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
 		
 		for(Button button : buttonList)
 		{
@@ -96,6 +106,10 @@ public class GuiScrollable extends Gui
 	@Override
 	public void mousePressed(int x, int y, int button)
 	{
+		for(Button button1 : staticButtonList)
+		{
+			if(button1.mousePressed(x, y, button)){ return; }
+		}
 		if(button == MouseEvent.BUTTON1)
 		{
 			if(x >= width - SCROLL_BAR_WIDTH && x < width)

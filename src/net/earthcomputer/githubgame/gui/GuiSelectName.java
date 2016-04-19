@@ -30,6 +30,13 @@ public class GuiSelectName extends GuiScrollable
 				}
 			});
 		}
+		staticButtonList.add(new Button("back", 530, 10) {
+			@Override
+			public void onPressed()
+			{
+				window.openGui(new GuiMainMenu());
+			}
+		});
 	}
 	
 }
