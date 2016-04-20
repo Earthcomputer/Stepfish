@@ -3,6 +3,7 @@ package net.earthcomputer.githubgame.gui;
 import java.util.Random;
 
 import net.earthcomputer.githubgame.GithubGame;
+import net.earthcomputer.githubgame.util.Profiles;
 
 public class GuiSelectName extends GuiScrollable
 {
@@ -24,8 +25,8 @@ public class GuiSelectName extends GuiScrollable
 				@Override
 				public void onPressed()
 				{
+					window.setProfile(Profiles.createProfile(getText()));
 					window.loadLevel(0);
-					githubGame.currentUser = getText();
 					window.closeGui();
 				}
 			});

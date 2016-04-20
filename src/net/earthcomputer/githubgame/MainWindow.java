@@ -13,6 +13,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,6 +36,8 @@ import net.earthcomputer.githubgame.util.GameObjectCreator;
 import net.earthcomputer.githubgame.util.InstanceOfPredicate;
 import net.earthcomputer.githubgame.util.Keyboard;
 import net.earthcomputer.githubgame.util.Predicate;
+import net.earthcomputer.githubgame.util.Profile;
+import net.earthcomputer.githubgame.util.Profiles;
 
 public class MainWindow
 {
@@ -55,6 +58,8 @@ public class MainWindow
 	
 	private Level currentLevel;
 	private int currentLevelIndex;
+	private Profile currentProfile;
+	private boolean[] starsObtained = new boolean[3];
 	private Gui pendingGui;
 	private Gui openGui;
 	
@@ -184,6 +189,30 @@ public class MainWindow
 	
 	public void completeLevel()
 	{
+		if(currentLevelIndex == currentProfile.getCurrentLevel())
+		{
+			currentProfile.completeLevel();
+		}
+		
+		for(int i = 0; i < 3; i++)
+		{
+			if(starsObtained[i] && !currentProfile.isStarObtained(currentLevelIndex, i))
+			{
+				currentProfile.obtainStar(currentLevelIndex, i);
+			}
+		}
+		
+		try
+		{
+			Profiles.saveProfiles();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "An error occurred while saving to profiles file.",
+				GithubGame.GAME_NAME, JOptionPane.ERROR_MESSAGE);
+		}
+		
 		if(currentLevelIndex == Levels.getLevelCount() - 1)
 		{
 			completeGame();
@@ -197,6 +226,16 @@ public class MainWindow
 	public void completeGame()
 	{
 		openGui(new GuiCompleteGame());
+	}
+	
+	public void completeStar(int index)
+	{
+		starsObtained[index] = true;
+	}
+	
+	public void setProfile(Profile profile)
+	{
+		this.currentProfile = profile;
 	}
 	
 	public void redraw()

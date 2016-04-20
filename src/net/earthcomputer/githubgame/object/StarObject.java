@@ -12,7 +12,15 @@ public class StarObject extends GameObject implements IUpdateListener
 	
 	public static final BufferedImage STAR_TEXTURE = Images.loadImage("star");
 	
-	public StarObject(double x, double y)
+	private int index;
+	
+	// Required for loading levels
+	public StarObject(double x, double y, Integer index)
+	{
+		this(x, y, index.intValue());
+	}
+	
+	public StarObject(double x, double y, int index)
 	{
 		super(x, y);
 		setCollisionMask(new MaskRectangle(16, 16));
@@ -29,6 +37,7 @@ public class StarObject extends GameObject implements IUpdateListener
 	{
 		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
+			window.completeStar(index);
 			window.removeObject(this);
 		}
 	}

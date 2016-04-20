@@ -1,10 +1,15 @@
 package net.earthcomputer.githubgame;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Random;
+
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import net.earthcomputer.githubgame.gui.GuiMainMenu;
 import net.earthcomputer.githubgame.object.ObjectTypes;
+import net.earthcomputer.githubgame.util.Profiles;
 
 /** The main class. We still need to decide what the game is about :,(
  * 
@@ -21,7 +26,6 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 	/** The singleton instance */
 	private static GithubGame INSTANCE;
 	
-	public String currentUser;
 	private MainWindow theWindow;
 	private boolean runningLoop = false;
 	
@@ -41,6 +45,16 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 	{
 		Thread.setDefaultUncaughtExceptionHandler(this);
 		
+		try
+		{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e)
+		{
+			// Non-fatal error
+			e.printStackTrace();
+		}
+		
 		runningLoop = true;
 		theWindow = new MainWindow();
 		
@@ -51,7 +65,25 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		registerKeyBinding("jump", KeyEvent.VK_SPACE);
 		registerKeyBinding("closeGui", KeyEvent.VK_ESCAPE);
 		
-		theWindow.loadLevel(0);
+		try
+		{
+			if(!Profiles.loadProfiles())
+			{
+				System.err.println("Profiles file had invalid format");
+				JOptionPane.showMessageDialog(null,
+					"The profiles file was found to have an invalid format. Try updating the game.", GAME_NAME,
+					JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "An error occurred while reading from profiles file", GAME_NAME,
+				JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		theWindow.openGui(new GuiMainMenu());
 		
 		new Thread(new Runnable() {
