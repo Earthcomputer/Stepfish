@@ -171,8 +171,14 @@ public class MainWindow
 	
 	private void loadLevel(Level level)
 	{
-		objectsToRemove.addAll(objects);
-		updateListenersToRemove.addAll(updateListeners);
+		synchronized(objects)
+		{
+			objectsToRemove.addAll(objects);
+		}
+		synchronized(updateListeners)
+		{
+			updateListenersToRemove.addAll(updateListeners);
+		}
 		
 		for(LevelObject object : level.objects)
 		{
@@ -262,22 +268,22 @@ public class MainWindow
 		
 		redraw();
 		
-		synchronized(objectsToRemove)
-		{
-			for(GameObject object : objectsToRemove)
-			{
-				objects.remove(object);
-			}
-		}
 		synchronized(objectsToAdd)
 		{
 			for(GameObject object : objectsToAdd)
 			{
 				objects.add(object);
 			}
+			objectsToAdd.clear();
 		}
-		objectsToRemove.clear();
-		objectsToAdd.clear();
+		synchronized(objectsToRemove)
+		{
+			for(GameObject object : objectsToRemove)
+			{
+				objects.remove(object);
+			}
+			objectsToRemove.clear();
+		}
 		synchronized(updateListenersToRemove)
 		{
 			for(IUpdateListener updateListener : updateListenersToRemove)
