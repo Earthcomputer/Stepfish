@@ -39,6 +39,7 @@ public final class Profile
 	
 	public boolean isStarObtained(int levelIndex, int starIndex)
 	{
+		if(levelIndex >= starsObtained.size()) return false;
 		int mask = 1 << starIndex;
 		return (starsObtained.get(levelIndex) & mask) != 0;
 	}

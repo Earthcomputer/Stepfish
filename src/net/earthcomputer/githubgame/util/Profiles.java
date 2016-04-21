@@ -171,6 +171,13 @@ public class Profiles
 		return profile;
 	}
 	
+	public static Profile deleteProfile(String name)
+	{
+		Profile removed = getProfileByName(name);
+		profiles.remove(removed);
+		return removed;
+	}
+	
 	public static int getProfileCount()
 	{
 		return profiles.size();

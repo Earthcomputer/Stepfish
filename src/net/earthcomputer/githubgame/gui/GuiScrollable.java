@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
@@ -24,7 +25,7 @@ public class GuiScrollable extends Gui
 	private int firstMouseY = -1;
 	private int firstScrollBarPos = -1;
 	
-	protected List<Button> staticButtonList = new ArrayList<Button>();
+	protected List<Button> staticButtonList = Collections.synchronizedList(new ArrayList<Button>());
 	
 	public GuiScrollable(Gui prevGui, int contentHeight)
 	{
@@ -68,6 +69,16 @@ public class GuiScrollable extends Gui
 		return amtScrolled;
 	}
 	
+	public int getContentHeight()
+	{
+		return contentHeight;
+	}
+	
+	public void setContentHeight(int contentHeight)
+	{
+		this.contentHeight = contentHeight;
+	}
+	
 	@Override
 	public void drawScreen(Graphics g)
 	{
@@ -79,18 +90,24 @@ public class GuiScrollable extends Gui
 		
 		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
 		
-		for(Button button : staticButtonList)
+		synchronized(staticButtonList)
 		{
-			button.draw(mousePos.x, mousePos.y, g);
+			for(Button button : staticButtonList)
+			{
+				button.draw(mousePos.x, mousePos.y, g);
+			}
 		}
 		
 		g.translate(0, -amtScrolled);
 		
 		drawMiddleLayer(g);
 		
-		for(Button button : buttonList)
+		synchronized(buttonList)
 		{
-			button.draw(mousePos.x, mousePos.y + amtScrolled, g);
+			for(Button button : buttonList)
+			{
+				button.draw(mousePos.x, mousePos.y + amtScrolled, g);
+			}
 		}
 		
 		g.translate(0, amtScrolled);
@@ -106,9 +123,12 @@ public class GuiScrollable extends Gui
 	@Override
 	public void mousePressed(int x, int y, int button)
 	{
-		for(Button button1 : staticButtonList)
+		synchronized(staticButtonList)
 		{
-			if(button1.mousePressed(x, y, button)){ return; }
+			for(Button button1 : staticButtonList)
+			{
+				if(button1.mousePressed(x, y, button)){ return; }
+			}
 		}
 		if(button == MouseEvent.BUTTON1)
 		{

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
@@ -18,7 +19,7 @@ public abstract class Gui
 	protected int width;
 	protected int height;
 	
-	protected List<Button> buttonList = new ArrayList<Button>();
+	protected List<Button> buttonList = Collections.synchronizedList(new ArrayList<Button>());
 	
 	protected Gui()
 	{
@@ -56,9 +57,12 @@ public abstract class Gui
 		
 		Point mousePos = GithubGame.getInstance().getWindow().getMouseLocation();
 		
-		for(Button button : buttonList)
+		synchronized(buttonList)
 		{
-			button.draw(mousePos.x, mousePos.y, g);
+			for(Button button : buttonList)
+			{
+				button.draw(mousePos.x, mousePos.y, g);
+			}
 		}
 	}
 	
@@ -78,9 +82,12 @@ public abstract class Gui
 	
 	public void mousePressed(int x, int y, int button)
 	{
-		for(Button button1 : buttonList)
+		synchronized(buttonList)
 		{
-			button1.mousePressed(x, y, button);
+			for(Button button1 : buttonList)
+			{
+				button1.mousePressed(x, y, button);
+			}
 		}
 	}
 	
