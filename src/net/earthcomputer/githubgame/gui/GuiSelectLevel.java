@@ -39,7 +39,7 @@ public class GuiSelectLevel extends GuiScrollable
 					if(levelId > window.getProfile().getCurrentLevel())
 					{
 						g.setColor(new Color(1f, 0f, 0f, 0.3f));
-						g.drawRoundRect(getX(), getY(), getWidth(), getHeight(), 10, 10);
+						g.fillRoundRect(getX(), getY(), getWidth(), getHeight(), 10, 10);
 					}
 				}
 				
