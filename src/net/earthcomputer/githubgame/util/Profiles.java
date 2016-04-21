@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -25,7 +27,7 @@ public class Profiles
 	{
 	}
 	
-	private static File getProfilesFile()
+	private static File getProfilesFile() throws IOException
 	{
 		String dirName = System.getenv("appdata");
 		File dir;
@@ -50,7 +52,7 @@ public class Profiles
 		if(!dir.exists())
 		{
 			dir.mkdir();
-			// TODO: hide file
+			Files.setAttribute(dir.toPath(), "dos:hidden", Boolean.TRUE, LinkOption.NOFOLLOW_LINKS);
 		}
 		
 		dir = new File(dir, "games");
