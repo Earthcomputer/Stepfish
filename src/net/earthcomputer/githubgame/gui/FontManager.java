@@ -39,7 +39,7 @@ public class FontManager
 		for(int i = 0; i < charArray.length; i++)
 		{
 			char c = charArray[i];
-			while(c < 'A')
+			while(c > ' ' && c < 'A')
 			{
 				c += 26;
 			}
