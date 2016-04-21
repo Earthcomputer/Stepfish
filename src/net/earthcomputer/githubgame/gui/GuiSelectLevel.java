@@ -26,11 +26,8 @@ public class GuiSelectLevel extends GuiScrollable
 				@Override
 				public void onPressed()
 				{
-					if(window.getProfile().getCurrentLevel() >= levelId)
-					{
-						window.loadLevel(levelId);
-						window.closeGui();
-					}
+					window.loadLevel(levelId);
+					window.closeGui();
 				}
 				
 				@Override
@@ -44,6 +41,12 @@ public class GuiSelectLevel extends GuiScrollable
 						g.setColor(new Color(1f, 0f, 0f, 0.3f));
 						g.drawRoundRect(getX(), getY(), getWidth(), getHeight(), 10, 10);
 					}
+				}
+				
+				@Override
+				public boolean isHovered(int mouseX, int mouseY)
+				{
+					return window.getProfile().getCurrentLevel() >= levelId && super.isHovered(mouseX, mouseY);
 				}
 			});
 		}
