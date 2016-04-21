@@ -23,7 +23,12 @@ public class StarObject extends GameObject implements IUpdateListener
 	public StarObject(double x, double y, int index)
 	{
 		super(x, y);
+		this.index = index;
 		setCollisionMask(new MaskRectangle(16, 16));
+		if(window.getProfile().isStarObtained(window.getCurrentLevelIndex(), index))
+		{
+			window.removeObject(this);
+		}
 	}
 	
 	@Override

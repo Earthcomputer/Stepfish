@@ -5,11 +5,13 @@ import java.awt.image.BufferedImage;
 
 import net.earthcomputer.githubgame.util.Images;
 import net.earthcomputer.githubgame.util.Keyboard;
+import net.earthcomputer.githubgame.util.Profiles;
 
 public class GuiMainMenu extends Gui
 {
 	private static final BufferedImage logo = Images.loadImage("logo");
 	private static final BufferedImage play = Images.loadImage("resume");
+	private static final BufferedImage load = Images.loadImage("select_profile");
 	
 	@Override
 	public void init()
@@ -32,6 +34,16 @@ public class GuiMainMenu extends Gui
 				frameCount++;
 			}
 		});
+		if(Profiles.getProfileCount() != 0)
+		{
+			this.buttonList.add(new Button(load, width / 2 + 20, 150) {
+				@Override
+				protected void onPressed()
+				{
+					window.openGui(new GuiSelectProfile(GuiMainMenu.this));
+				}
+			});
+		}
 	}
 	
 	@Override

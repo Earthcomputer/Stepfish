@@ -169,6 +169,11 @@ public class Profiles
 		return profile;
 	}
 	
+	public static int getProfileCount()
+	{
+		return profiles.size();
+	}
+	
 	public static List<String> getProfileNameList()
 	{
 		List<String> names = new ArrayList<String>();

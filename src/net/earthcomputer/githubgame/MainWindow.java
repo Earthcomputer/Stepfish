@@ -15,6 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -164,6 +165,7 @@ public class MainWindow
 			return false;
 		}
 		
+		Arrays.fill(starsObtained, false);
 		currentLevelIndex = id;
 		loadLevel(level);
 		return true;
@@ -239,9 +241,19 @@ public class MainWindow
 		starsObtained[index] = true;
 	}
 	
+	public Profile getProfile()
+	{
+		return currentProfile;
+	}
+	
 	public void setProfile(Profile profile)
 	{
 		this.currentProfile = profile;
+	}
+	
+	public int getCurrentLevelIndex()
+	{
+		return currentLevelIndex;
 	}
 	
 	public void redraw()
