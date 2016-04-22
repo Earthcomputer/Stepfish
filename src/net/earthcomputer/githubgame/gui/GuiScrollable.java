@@ -43,8 +43,8 @@ public class GuiScrollable extends Gui
 	private void recalcFields()
 	{
 		maxScroll = contentHeight - height;
-		if(amtScrolled > maxScroll) amtScrolled = maxScroll;
 		if(maxScroll < 0) maxScroll = 0;
+		if(amtScrolled > maxScroll) amtScrolled = maxScroll;
 		scrollBarHeight = height * height / contentHeight;
 		if(scrollBarHeight > height) scrollBarHeight = height;
 		scrollBarTop = (maxScroll == 0 ? 0 : (height - scrollBarHeight) * amtScrolled / maxScroll);
@@ -77,6 +77,7 @@ public class GuiScrollable extends Gui
 	public void setContentHeight(int contentHeight)
 	{
 		this.contentHeight = contentHeight;
+		recalcFields();
 	}
 	
 	@Override
@@ -143,7 +144,7 @@ public class GuiScrollable extends Gui
 			}
 			else
 			{
-				mousePressedInView(x, y - amtScrolled, button);
+				mousePressedInView(x, y + amtScrolled, button);
 			}
 		}
 	}
@@ -174,6 +175,14 @@ public class GuiScrollable extends Gui
 		}
 		else
 		{
+			if(Keyboard.isKeyDown("scrollUp"))
+			{
+				scrollBy(-5);
+			}
+			if(Keyboard.isKeyDown("scrollDown"))
+			{
+				scrollBy(5);
+			}
 			if(firstScrollBarPos != -1)
 			{
 				int dy = window.getMouseLocation().y - firstMouseY;

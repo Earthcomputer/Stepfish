@@ -25,6 +25,8 @@ public class GuiSelectProfile extends GuiScrollable
 	@Override
 	public void init()
 	{
+		super.init();
+		
 		List<String> profileNames = Profiles.getProfileNameList();
 		
 		for(int i = 0; i < profileNames.size(); i++)
@@ -60,7 +62,6 @@ public class GuiSelectProfile extends GuiScrollable
 								return;
 							}
 							setContentHeight(getContentHeight() - 80);
-							validate(width, height);
 							if(Profiles.getProfileCount() == 0)
 							{
 								window.openGui(new GuiMainMenu());

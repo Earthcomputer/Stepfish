@@ -64,6 +64,8 @@ public class GithubGame implements Thread.UncaughtExceptionHandler
 		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
 		registerKeyBinding("jump", KeyEvent.VK_SPACE);
 		registerKeyBinding("closeGui", KeyEvent.VK_ESCAPE);
+		registerKeyBinding("scrollUp", KeyEvent.VK_UP);
+		registerKeyBinding("scrollDown", KeyEvent.VK_DOWN);
 		
 		try
 		{

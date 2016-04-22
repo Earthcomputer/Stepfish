@@ -19,6 +19,8 @@ public class GuiSelectLevel extends GuiScrollable
 	@Override
 	public void init()
 	{
+		super.init();
+		
 		for(int i = 0; i < Levels.getLevelCount(); i++)
 		{
 			final int levelId = i;
