@@ -30,10 +30,14 @@ public class ObjectTypes
 		registerType(6, StarObject.class, 0);
 		registerType(7, ElementSwitcherObject.class);
 		registerType(8, FlyingCrossObject.class);
-		registerType(9, SwitchingSpikeObject.class);
+		registerType(9, SpikeObject.class, EnumElement.EARTH, true);
 		registerType(10, ExitObject.class);
 		registerType(11, StarObject.class, 1);
 		registerType(12, StarObject.class, 2);
+		registerType(13, SpikeObject.class, EnumElement.EARTH, false);
+		registerType(14, SpikeObject.class, EnumElement.WATER, false);
+		registerType(15, SpikeObject.class, EnumElement.AIR, false);
+		registerType(16, SpikeObject.class, EnumElement.FIRE, false);
 	}
 	
 	private static <T extends GameObject> void registerType(int id, final Class<T> clazz, Object... extraCtorArgs)

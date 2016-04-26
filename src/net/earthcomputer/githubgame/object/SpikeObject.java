@@ -1,25 +1,29 @@
 package net.earthcomputer.githubgame.object;
 
 import java.awt.Graphics;
-import java.util.List;
 
 import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.IUpdateListener;
 import net.earthcomputer.githubgame.geom.collision.MaskPolygon;
 
-public class SwitchingSpikeObject extends GameObject implements IUpdateListener
+public class SpikeObject extends GameObject implements IUpdateListener
 {
 	
 	private static final int SWITCH_RATE = GithubGame.TICKRATE;
 	private EnumElement element;
 	private int ticksUntilSwitch;
 	
-	public SwitchingSpikeObject(double x, double y)
+	public SpikeObject(double x, double y, EnumElement element, Boolean switching)
+	{
+		this(x, y, element, switching.booleanValue());
+	}
+	
+	public SpikeObject(double x, double y, EnumElement element, boolean switching)
 	{
 		super(x, y);
 		setCollisionMask(new MaskPolygon(new int[] { 0, 16, 8 }, new int[] { 16, 16, 4 }, 3));
-		element = EnumElement.EARTH;
-		ticksUntilSwitch = SWITCH_RATE;
+		this.element = element;
+		ticksUntilSwitch = switching ? SWITCH_RATE : -1;
 	}
 	
 	@Override
@@ -34,25 +38,20 @@ public class SwitchingSpikeObject extends GameObject implements IUpdateListener
 	@Override
 	public void update()
 	{
-		if(ticksUntilSwitch == 0)
+		if(ticksUntilSwitch != -1)
 		{
-			element = element.nextElement();
-			ticksUntilSwitch = SWITCH_RATE;
-		}
-		ticksUntilSwitch--;
-		
-		List<GameObject> collided = window.getObjectsThatCollideWith(this);
-		for(GameObject object : collided)
-		{
-			if(object instanceof PlayerObject)
+			if(ticksUntilSwitch == 0)
 			{
-				if(element != ((PlayerObject) object).getElement())
-				{
-					window.restartLevel();
-					break;
-				}
+				element = element.nextElement();
+				ticksUntilSwitch = SWITCH_RATE;
 			}
+			ticksUntilSwitch--;
 		}
+	}
+	
+	public EnumElement getElement()
+	{
+		return element;
 	}
 	
 }

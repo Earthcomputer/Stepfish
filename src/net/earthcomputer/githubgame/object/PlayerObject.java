@@ -105,6 +105,17 @@ public class PlayerObject extends PhysicsObject
 			window.openGui(new GuiPauseMenu());
 		}
 		
+		if(window.isObjectCollidedWith(this, new Predicate<GameObject>() {
+			@Override
+			public boolean apply(GameObject input)
+			{
+				return (input instanceof SpikeObject) && ((SpikeObject) input).getElement() != element;
+			}
+		}))
+		{
+			window.restartLevel();
+		}
+		
 		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
 		{
 			Pos prevPos = getPreviousPos();
