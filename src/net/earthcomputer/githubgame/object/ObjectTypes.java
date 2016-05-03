@@ -38,6 +38,7 @@ public class ObjectTypes
 		registerType(14, SpikeObject.class, EnumElement.WATER, false);
 		registerType(15, SpikeObject.class, EnumElement.AIR, false);
 		registerType(16, SpikeObject.class, EnumElement.FIRE, false);
+		registerType(17, EnemyBlockerObject.class);
 	}
 	
 	private static <T extends GameObject> void registerType(int id, final Class<T> clazz, Object... extraCtorArgs)

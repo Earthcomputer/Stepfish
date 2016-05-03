@@ -7,10 +7,20 @@ import java.util.List;
 import net.earthcomputer.githubgame.GithubGame;
 import net.earthcomputer.githubgame.IUpdateListener;
 import net.earthcomputer.githubgame.geom.collision.MaskRectangle;
+import net.earthcomputer.githubgame.util.Predicate;
 
 public class FlyingCrossObject extends GameObject implements IUpdateListener
 {
 	private static final int MOVE_SPEED = 3;
+	
+	private static final Predicate<GameObject> WALL_COLLISION = new Predicate<GameObject>() {
+		@Override
+		public boolean apply(GameObject input)
+		{
+			return (input instanceof EnemyBlockerObject)
+				|| ((input instanceof WallObject) && ((WallObject) input).getElement() == null);
+		}
+	};
 	
 	private int frames = 0;
 	private double startingY;
@@ -23,6 +33,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 		this.startingY = y;
 		this.state = EnumState.MOVE;
 		setCollisionMask(new MaskRectangle(1, 1, 14, 14));
+		setDepth(-500);
 	}
 	
 	@Override
@@ -53,6 +64,10 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 				if(getY() < attackTargetY)
 				{
 					setY(Math.min(getY() + MOVE_SPEED, attackTargetY));
+					if(window.isObjectCollidedWith(this, WALL_COLLISION))
+					{
+						state = EnumState.ATTACK_UP;
+					}
 				}
 				else
 				{
@@ -87,7 +102,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 				
 				if(targetPlayer != null)
 				{
-					boolean canAttack = getY() < targetPlayer.getY() && Math.abs(getX() - targetPlayer.getX()) < 16;
+					boolean canAttack = getY() < targetPlayer.getY() && Math.abs(getX() - targetPlayer.getX()) < 12;
 					if(canAttack)
 					{
 						state = EnumState.ATTACK_DOWN;
@@ -95,6 +110,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 					}
 					else
 					{
+						double prevX = getX();
 						if(getX() < targetPlayer.getX())
 						{
 							setX(Math.min(getX() + MOVE_SPEED, targetPlayer.getX()));
@@ -102,6 +118,16 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 						else if(getX() > targetPlayer.getX())
 						{
 							setX(Math.max(getX() - MOVE_SPEED, targetPlayer.getX()));
+						}
+						if(window.isObjectCollidedWith(this, WALL_COLLISION))
+						{
+							int diff = getX() < prevX ? -1 : 1;
+							setX(prevX);
+							while(!window.isObjectCollidedWith(this, WALL_COLLISION))
+							{
+								setX(getX() + diff);
+							}
+							setX(getX() - diff);
 						}
 					}
 				}
