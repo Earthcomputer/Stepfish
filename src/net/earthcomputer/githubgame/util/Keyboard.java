@@ -1,10 +1,13 @@
 package net.earthcomputer.githubgame.util;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Keyboard
 {
+	private static final Map<Integer, Set<String>> keyBindings = new HashMap<Integer, Set<String>>();
 	private static final Set<String> keysPressed = new HashSet<String>();
 	private static final Set<String> keysReleased = new HashSet<String>();
 	private static final Set<String> keysDown = new HashSet<String>();
@@ -16,6 +19,15 @@ public class Keyboard
 	
 	private Keyboard()
 	{
+	}
+	
+	public static void bindKey(int keyCode, String name)
+	{
+		if(!keyBindings.containsKey(keyCode))
+		{
+			keyBindings.put(keyCode, new HashSet<String>());
+		}
+		keyBindings.get(keyCode).add(name);
 	}
 	
 	public static boolean isKeyPressed(String keyBinding)
@@ -42,11 +54,33 @@ public class Keyboard
 		}
 	}
 	
+	public static void pressKey(int keyCode)
+	{
+		if(keyBindings.containsKey(keyCode))
+		{
+			for(String name : keyBindings.get(keyCode))
+			{
+				pressKey(name);
+			}
+		}
+	}
+	
 	public static void pressKey(String keyBinding)
 	{
 		synchronized(SYNC_LOCK)
 		{
 			if(enableRepeatEvents || !keysDown.contains(keyBinding)) pendingKeysPressed.add(keyBinding);
+		}
+	}
+	
+	public static void releaseKey(int keyCode)
+	{
+		if(keyBindings.containsKey(keyCode))
+		{
+			for(String name : keyBindings.get(keyCode))
+			{
+				releaseKey(name);
+			}
 		}
 	}
 	

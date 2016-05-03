@@ -7,6 +7,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -19,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -54,11 +55,8 @@ public class MainWindow
 	private CustomContentPane contentPane;
 	
 	private List<GameObject> objects = Collections.synchronizedList(new ArrayList<GameObject>());
-	private Set<GameObject> objectsToAdd = Collections.synchronizedSet(new HashSet<GameObject>());
-	private Set<GameObject> objectsToRemove = Collections.synchronizedSet(new HashSet<GameObject>());
 	private List<IUpdateListener> updateListeners = Collections.synchronizedList(new ArrayList<IUpdateListener>());
-	private Set<IUpdateListener> updateListenersToAdd = Collections.synchronizedSet(new HashSet<IUpdateListener>());
-	private Set<IUpdateListener> updateListenersToRemove = Collections.synchronizedSet(new HashSet<IUpdateListener>());
+	private Queue<Runnable> runLater = new ConcurrentLinkedQueue<Runnable>();
 	
 	private boolean paused = false;
 	
@@ -66,7 +64,6 @@ public class MainWindow
 	private int currentLevelIndex;
 	private Profile currentProfile;
 	private boolean[] starsObtained = new boolean[3];
-	private Gui pendingGui;
 	private Gui openGui;
 	
 	public MainWindow()
@@ -147,29 +144,53 @@ public class MainWindow
 	
 	public <T extends GameObject> T addObject(double x, double y, GameObjectCreator<T> creator)
 	{
-		T instance = creator.create(x, y);
+		final T instance = creator.create(x, y);
 		if(instance != null)
 		{
-			objectsToAdd.add(instance);
+			runLater(new Runnable() {
+				@Override
+				public void run()
+				{
+					objects.add(instance);
+				}
+			});
 			if(instance instanceof IUpdateListener) addUpdateListener((IUpdateListener) instance);
 		}
 		return instance;
 	}
 	
-	public void removeObject(GameObject object)
+	public void removeObject(final GameObject object)
 	{
-		objectsToRemove.add(object);
+		runLater(new Runnable() {
+			@Override
+			public void run()
+			{
+				objects.remove(object);
+			}
+		});
 		if(object instanceof IUpdateListener) removeUpdateListener((IUpdateListener) object);
 	}
 	
-	public void addUpdateListener(IUpdateListener updateListener)
+	public void addUpdateListener(final IUpdateListener updateListener)
 	{
-		updateListenersToAdd.add(updateListener);
+		runLater(new Runnable() {
+			@Override
+			public void run()
+			{
+				updateListeners.add(updateListener);
+			}
+		});
 	}
 	
-	public void removeUpdateListener(IUpdateListener updateListener)
+	public void removeUpdateListener(final IUpdateListener updateListener)
 	{
-		updateListenersToRemove.add(updateListener);
+		runLater(new Runnable() {
+			@Override
+			public void run()
+			{
+				updateListeners.remove(updateListener);
+			}
+		});
 	}
 	
 	public boolean loadLevel(int id)
@@ -192,14 +213,20 @@ public class MainWindow
 	
 	private void loadLevel(Level level)
 	{
-		synchronized(objects)
-		{
-			objectsToRemove.addAll(objects);
-		}
-		synchronized(updateListeners)
-		{
-			updateListenersToRemove.addAll(updateListeners);
-		}
+		runLater(new Runnable() {
+			@Override
+			public void run()
+			{
+				synchronized(objects)
+				{
+					objects.clear();
+				}
+				synchronized(updateListeners)
+				{
+					updateListeners.clear();
+				}
+			}
+		});
 		
 		for(LevelObject object : level.objects)
 		{
@@ -299,39 +326,6 @@ public class MainWindow
 		
 		redraw();
 		
-		synchronized(objectsToAdd)
-		{
-			for(GameObject object : objectsToAdd)
-			{
-				objects.add(object);
-			}
-			objectsToAdd.clear();
-		}
-		synchronized(objectsToRemove)
-		{
-			for(GameObject object : objectsToRemove)
-			{
-				objects.remove(object);
-			}
-			objectsToRemove.clear();
-		}
-		synchronized(updateListenersToRemove)
-		{
-			for(IUpdateListener updateListener : updateListenersToRemove)
-			{
-				updateListeners.remove(updateListener);
-			}
-		}
-		synchronized(updateListenersToAdd)
-		{
-			for(IUpdateListener updateListener : updateListenersToAdd)
-			{
-				updateListeners.add(updateListener);
-			}
-		}
-		updateListenersToRemove.clear();
-		updateListenersToAdd.clear();
-		
 		synchronized(objects)
 		{
 			Collections.sort(objects, new Comparator<GameObject>() {
@@ -372,9 +366,20 @@ public class MainWindow
 			});
 		}
 		
-		if(pendingGui != openGui)
+		synchronized(runLater)
 		{
-			openGuiDangerously(pendingGui);
+			while(!runLater.isEmpty())
+			{
+				runLater.poll().run();
+			}
+		}
+	}
+	
+	public void runLater(Runnable task)
+	{
+		synchronized(runLater)
+		{
+			runLater.offer(task);
 		}
 	}
 	
@@ -471,9 +476,15 @@ public class MainWindow
 		return currentLevel.height;
 	}
 	
-	public void openGui(Gui gui)
+	public void openGui(final Gui gui)
 	{
-		pendingGui = gui;
+		runLater(new Runnable() {
+			@Override
+			public void run()
+			{
+				openGuiDangerously(gui);
+			}
+		});
 	}
 	
 	private void openGuiDangerously(Gui gui)
@@ -498,28 +509,30 @@ public class MainWindow
 		openGui(null);
 	}
 	
-	public void registerKeyBinding(final String name, int key)
+	public void registerKeyBinding(String name, final int key)
 	{
-		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0), name + "_pressed");
-		contentPane.getActionMap().put(name + "_pressed", new AbstractAction() {
+		String keyName = KeyEvent.getKeyText(key);
+		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0), keyName + "_pressed");
+		contentPane.getActionMap().put(keyName + "_pressed", new AbstractAction() {
 			private static final long serialVersionUID = -753513252932687926L;
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Keyboard.pressKey(name);
+				Keyboard.pressKey(key);
 			}
 		});
-		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), name + "_released");
-		contentPane.getActionMap().put(name + "_released", new AbstractAction() {
+		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), keyName + "_released");
+		contentPane.getActionMap().put(keyName + "_released", new AbstractAction() {
 			private static final long serialVersionUID = -3429603800043274550L;
 			
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Keyboard.releaseKey(name);
+				Keyboard.releaseKey(key);
 			}
 		});
+		Keyboard.bindKey(key, name);
 	}
 	
 	public Point getMouseLocation()
