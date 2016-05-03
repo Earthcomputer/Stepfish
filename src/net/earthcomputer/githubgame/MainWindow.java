@@ -13,6 +13,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +32,11 @@ import javax.swing.KeyStroke;
 import net.earthcomputer.githubgame.Level.LevelObject;
 import net.earthcomputer.githubgame.gui.Gui;
 import net.earthcomputer.githubgame.gui.GuiCompleteGame;
+import net.earthcomputer.githubgame.gui.GuiPauseMenu;
 import net.earthcomputer.githubgame.object.GameObject;
 import net.earthcomputer.githubgame.object.ObjectTypes;
 import net.earthcomputer.githubgame.util.GameObjectCreator;
+import net.earthcomputer.githubgame.util.Images;
 import net.earthcomputer.githubgame.util.InstanceOfPredicate;
 import net.earthcomputer.githubgame.util.Keyboard;
 import net.earthcomputer.githubgame.util.Predicate;
@@ -44,6 +47,8 @@ public class MainWindow
 {
 	
 	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
+	
+	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("pause");
 	
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;
@@ -90,7 +95,21 @@ public class MainWindow
 			@Override
 			public void mousePressed(MouseEvent e)
 			{
-				if(openGui != null) openGui.mousePressed(e.getX(), e.getY(), e.getButton());
+				if(openGui == null)
+				{
+					if(e.getButton() == MouseEvent.BUTTON1)
+					{
+						if(e.getX() >= 2 && e.getY() >= 2 && e.getX() < 2 + PAUSE_BUTTON.getWidth()
+							&& e.getY() < 2 + PAUSE_BUTTON.getHeight())
+						{
+							openGui(new GuiPauseMenu());
+						}
+					}
+				}
+				else
+				{
+					openGui.mousePressed(e.getX(), e.getY(), e.getButton());
+				}
 			}
 			
 			@Override
@@ -536,7 +555,14 @@ public class MainWindow
 				}
 			}
 			
-			if(openGui != null) openGui.drawScreen(g);
+			if(openGui == null)
+			{
+				g.drawImage(PAUSE_BUTTON, 2, 2, null);
+			}
+			else
+			{
+				openGui.drawScreen(g);
+			}
 		}
 		
 	}
