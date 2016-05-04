@@ -80,31 +80,25 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 		
 		theWindow.openGui(new GuiMainMenu());
 		
-		new Thread(new Runnable() {
-			@Override
-			public void run()
+		while(runningLoop)
+		{
+			long startTick = System.currentTimeMillis(), timeToSleep;
+			
+			theWindow.updateTick();
+			
+			timeToSleep = MILLIS_PER_TICK - (System.currentTimeMillis() - startTick);
+			if(timeToSleep > 0)
 			{
-				while(runningLoop)
+				try
 				{
-					long startTick = System.currentTimeMillis(), timeToSleep;
-					
-					theWindow.updateTick();
-					
-					timeToSleep = MILLIS_PER_TICK - (System.currentTimeMillis() - startTick);
-					if(timeToSleep > 0)
-					{
-						try
-						{
-							Thread.sleep(timeToSleep);
-						}
-						catch (InterruptedException e)
-						{
-							throw new RuntimeException("Ticking thread interrupted");
-						}
-					}
+					Thread.sleep(timeToSleep);
+				}
+				catch (InterruptedException e)
+				{
+					throw new RuntimeException("Ticking thread interrupted");
 				}
 			}
-		}, "Ticking Thread").start();
+		}
 	}
 	
 	/** Called to end the game */
