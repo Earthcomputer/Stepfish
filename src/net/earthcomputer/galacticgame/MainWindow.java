@@ -34,6 +34,7 @@ import net.earthcomputer.galacticgame.gui.GuiCompleteGame;
 import net.earthcomputer.galacticgame.gui.GuiPauseMenu;
 import net.earthcomputer.galacticgame.object.GameObject;
 import net.earthcomputer.galacticgame.object.ObjectTypes;
+import net.earthcomputer.galacticgame.util.AlwaysTruePredicate;
 import net.earthcomputer.galacticgame.util.GameObjectCreator;
 import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.InstanceOfPredicate;
@@ -411,65 +412,68 @@ public class MainWindow
 		return objectsFound;
 	}
 	
-	public List<GameObject> getObjectsThatCollideWith(final Shape shape)
+	public List<GameObject> getObjectsThatCollideWith(GameObject object)
+	{
+		return getObjectsThatCollideWith(object, new AlwaysTruePredicate<GameObject>());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends GameObject> List<T> getObjectsThatCollideWith(GameObject object, Class<T> type)
+	{
+		return (List<T>) getObjectsThatCollideWith(object, new InstanceOfPredicate<GameObject>(type));
+	}
+	
+	public List<GameObject> getObjectsThatCollideWith(final GameObject object, final Predicate<GameObject> filter)
 	{
 		return listObjects(new Predicate<GameObject>() {
-			
 			@Override
 			public boolean apply(GameObject input)
 			{
-				return input.isCollidedWith(shape);
+				return filter.apply(input) && object.isCollidedWith(input);
 			}
-			
 		});
 	}
 	
-	public List<GameObject> getObjectsThatCollideWith(final GameObject object)
+	public List<GameObject> getObjectsThatCollideWith(Shape shape)
+	{
+		return getObjectsThatCollideWith(shape, new AlwaysTruePredicate<GameObject>());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends GameObject> List<T> getObjectsThatCollideWith(Shape shape, Class<T> type)
+	{
+		return (List<T>) getObjectsThatCollideWith(shape, new InstanceOfPredicate<GameObject>(type));
+	}
+	
+	public List<GameObject> getObjectsThatCollideWith(final Shape shape, final Predicate<GameObject> filter)
 	{
 		return listObjects(new Predicate<GameObject>() {
-			
 			@Override
 			public boolean apply(GameObject input)
 			{
-				return input.isCollidedWith(object);
+				return filter.apply(input) && input.isCollidedWith(shape);
 			}
-			
 		});
 	}
 	
-	public boolean isObjectCollidedWith(GameObject object, final Class<? extends GameObject> clazz)
+	public boolean isObjectCollidedWith(GameObject object, Class<? extends GameObject> type)
 	{
-		return isObjectCollidedWith(object, new InstanceOfPredicate<GameObject>(clazz));
+		return !getObjectsThatCollideWith(object, type).isEmpty();
 	}
 	
-	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> predicate)
+	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> filter)
 	{
-		List<GameObject> objects = getObjectsThatCollideWith(object);
-		for(GameObject object1 : objects)
-		{
-			if(predicate.apply(object1)) return true;
-		}
-		return false;
+		return !getObjectsThatCollideWith(object, filter).isEmpty();
 	}
 	
-	public boolean isShapeCollidedWith(Shape shape, final Class<? extends GameObject> clazz)
+	public boolean isShapeCollidedWith(Shape shape, Class<? extends GameObject> type)
 	{
-		return isShapeCollidedWith(shape, new InstanceOfPredicate<GameObject>(clazz));
+		return !getObjectsThatCollideWith(shape, type).isEmpty();
 	}
 	
-	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> predicate)
+	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> filter)
 	{
-		List<GameObject> objects = getObjectsThatCollideWith(shape);
-		for(GameObject object1 : objects)
-		{
-			if(predicate.apply(object1)) return true;
-		}
-		return false;
-	}
-	
-	public double getTaxicabDistanceBetween(GameObject object1, GameObject object2)
-	{
-		return Math.abs(object1.getX() - object2.getX()) + Math.abs(object1.getY() - object2.getY());
+		return !getObjectsThatCollideWith(shape, filter).isEmpty();
 	}
 	
 	public int getWidth()

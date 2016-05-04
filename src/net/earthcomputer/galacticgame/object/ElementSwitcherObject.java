@@ -33,16 +33,12 @@ public class ElementSwitcherObject extends GameObject implements IUpdateListener
 	@Override
 	public void update()
 	{
-		List<GameObject> collided = window.getObjectsThatCollideWith(this);
-		for(GameObject object : collided)
+		List<PlayerObject> collided = window.getObjectsThatCollideWith(this, PlayerObject.class);
+		for(PlayerObject player : collided)
 		{
-			if(object instanceof PlayerObject)
-			{
-				PlayerObject player = (PlayerObject) object;
-				player.setElement(player.getElement().nextElement());
-				window.removeObject(this);
-				break;
-			}
+			player.setElement(player.getElement().nextElement());
+			window.removeObject(this);
+			break;
 		}
 	}
 	

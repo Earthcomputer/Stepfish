@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskPolygon;
+import net.earthcomputer.galacticgame.util.Predicate;
 
 public class SpikeObject extends GameObject implements IUpdateListener
 {
@@ -46,6 +47,17 @@ public class SpikeObject extends GameObject implements IUpdateListener
 				ticksUntilSwitch = SWITCH_RATE;
 			}
 			ticksUntilSwitch--;
+		}
+		
+		if(window.isObjectCollidedWith(this, new Predicate<GameObject>() {
+			@Override
+			public boolean apply(GameObject input)
+			{
+				return (input instanceof PlayerObject) && ((PlayerObject) input).getElement() != element;
+			}
+		}))
+		{
+			window.restartLevel();
 		}
 	}
 	

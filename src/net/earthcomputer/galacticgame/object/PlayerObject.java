@@ -3,11 +3,10 @@ package net.earthcomputer.galacticgame.object;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 
-import net.earthcomputer.galacticgame.geom.Pos;
 import net.earthcomputer.galacticgame.geom.Velocity;
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
+import net.earthcomputer.galacticgame.geom.collision.MoveToContactHelper;
 import net.earthcomputer.galacticgame.gui.GuiPauseMenu;
 import net.earthcomputer.galacticgame.util.Keyboard;
 import net.earthcomputer.galacticgame.util.Predicate;
@@ -31,6 +30,7 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 	};
+	private MoveToContactHelper moveToContactHelper = new MoveToContactHelper(this, wallCollisionPredicate);
 	
 	public PlayerObject(double x, double y)
 	{
@@ -105,85 +105,9 @@ public class PlayerObject extends PhysicsObject
 			window.openGui(new GuiPauseMenu());
 		}
 		
-		if(window.isObjectCollidedWith(this, new Predicate<GameObject>() {
-			@Override
-			public boolean apply(GameObject input)
-			{
-				return (input instanceof SpikeObject) && ((SpikeObject) input).getElement() != element;
-			}
-		}))
-		{
-			window.restartLevel();
-		}
-		
 		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
 		{
-			Pos prevPos = getPreviousPos();
-			Pos pos = getPos();
-			double movingX = pos.getX() - prevPos.getX();
-			double movingY = pos.getY() - prevPos.getY();
-			double absDX = Math.abs(movingX);
-			double absDY = Math.abs(movingY);
-			setPos(prevPos);
-			double amtToMove;
-			if(absDX < absDY)
-			{
-				amtToMove = absDY;
-				movingX /= absDY;
-				movingY = Math.signum(movingY);
-			}
-			else
-			{
-				amtToMove = absDX;
-				movingY /= absDX;
-				movingX = Math.signum(movingX);
-			}
-			
-			Rectangle2D.Double rect = new Rectangle2D.Double(prevPos.getX(), prevPos.getY(), 16, 16);
-			
-			for(int i = 0; i < amtToMove; i++)
-			{
-				// Try moving diagonally first
-				rect.x += movingX;
-				rect.y += movingY;
-				if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
-				{
-					// Try moving vertically by negating x
-					rect.x -= movingX;
-					if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
-					{
-						// Try moving horizontally by un-negating x and negating y
-						rect.x += movingX;
-						rect.y -= movingY;
-						if(window.isShapeCollidedWith(rect, wallCollisionPredicate))
-						{
-							// Can't move anywhere, re-negate x
-							rect.x -= movingX;
-							
-							// Make both coords whole
-							rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
-							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
-							// Stop moving
-							setSpeed(0);
-						}
-						else
-						{
-							// Successfully moved horizontally, make y-coord whole
-							rect.y = movingY > 0 ? Math.ceil(rect.y) : Math.floor(rect.y);
-							// Stop vertical speed
-							setYVelocity(0);
-						}
-					}
-					else
-					{
-						// Successfully moved vertically, make x-coord whole
-						rect.x = movingX > 0 ? Math.ceil(rect.x) : Math.floor(rect.x);
-						// Stop horizontal speed
-						setXVelocity(0);
-					}
-				}
-			}
-			setPos(new Pos(rect.x, rect.y));
+			moveToContactHelper.moveToContact();
 		}
 		
 		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
