@@ -6,8 +6,8 @@ import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 
 import net.earthcomputer.galacticgame.Level.LevelObject;
 import net.earthcomputer.galacticgame.gui.Gui;
@@ -69,8 +67,8 @@ public class MainWindow
 	public MainWindow()
 	{
 		theFrame = new JFrame(
-			GalacticGame.randomGenTitle(GalacticGame.GAME_VERSION.hashCode() + 31 * GalacticGame.GAME_NAME.hashCode()) + " ("
-				+ GalacticGame.GAME_NAME + " " + GalacticGame.GAME_VERSION + ")");
+			GalacticGame.randomGenTitle(GalacticGame.GAME_VERSION.hashCode() + 31 * GalacticGame.GAME_NAME.hashCode())
+				+ " (" + GalacticGame.GAME_NAME + " " + GalacticGame.GAME_VERSION + ")");
 				
 		theFrame.setContentPane(contentPane = new CustomContentPane());
 		contentPane.setPreferredSize(PREFERRED_SIZE);
@@ -79,12 +77,6 @@ public class MainWindow
 			public void windowClosing(WindowEvent e)
 			{
 				GalacticGame.getInstance().shutdown();
-			}
-			
-			@Override
-			public void windowLostFocus(WindowEvent e)
-			{
-				Keyboard.clearKeys();
 			}
 		});
 		contentPane.addMouseListener(new MouseAdapter() {
@@ -125,6 +117,20 @@ public class MainWindow
 			}
 			
 		});
+		contentPane.addKeyListener(Keyboard.instance());
+		contentPane.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e)
+			{
+			}
+			
+			@Override
+			public void focusLost(FocusEvent e)
+			{
+				Keyboard.clearKeys();
+			}
+		});
+		contentPane.requestFocusInWindow();
 		theFrame.setResizable(false);
 		theFrame.pack();
 		theFrame.setLocationRelativeTo(null);
@@ -507,32 +513,6 @@ public class MainWindow
 	public void closeGui()
 	{
 		openGui(null);
-	}
-	
-	public void registerKeyBinding(String name, final int key)
-	{
-		String keyName = KeyEvent.getKeyText(key);
-		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0), keyName + "_pressed");
-		contentPane.getActionMap().put(keyName + "_pressed", new AbstractAction() {
-			private static final long serialVersionUID = -753513252932687926L;
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Keyboard.pressKey(key);
-			}
-		});
-		contentPane.getInputMap().put(KeyStroke.getKeyStroke(key, 0, true), keyName + "_released");
-		contentPane.getActionMap().put(keyName + "_released", new AbstractAction() {
-			private static final long serialVersionUID = -3429603800043274550L;
-			
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Keyboard.releaseKey(key);
-			}
-		});
-		Keyboard.bindKey(key, name);
 	}
 	
 	public Point getMouseLocation()

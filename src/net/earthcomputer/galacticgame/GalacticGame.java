@@ -1,6 +1,5 @@
 package net.earthcomputer.galacticgame;
 
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.Random;
 
@@ -9,6 +8,7 @@ import javax.swing.UIManager;
 
 import net.earthcomputer.galacticgame.gui.GuiMainMenu;
 import net.earthcomputer.galacticgame.object.ObjectTypes;
+import net.earthcomputer.galacticgame.util.Keyboard;
 import net.earthcomputer.galacticgame.util.Profiles;
 
 public class GalacticGame implements Thread.UncaughtExceptionHandler
@@ -57,13 +57,7 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 		
 		ObjectTypes.registerTypes();
 		
-		registerKeyBinding("moveLeft", KeyEvent.VK_LEFT);
-		registerKeyBinding("moveRight", KeyEvent.VK_RIGHT);
-		registerKeyBinding("jump", KeyEvent.VK_SPACE);
-		registerKeyBinding("jump", KeyEvent.VK_UP);
-		registerKeyBinding("closeGui", KeyEvent.VK_ESCAPE);
-		registerKeyBinding("scrollUp", KeyEvent.VK_UP);
-		registerKeyBinding("scrollDown", KeyEvent.VK_DOWN);
+		Keyboard.registerKeyBindings();
 		
 		try
 		{
@@ -124,11 +118,6 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 	public MainWindow getWindow()
 	{
 		return theWindow;
-	}
-	
-	public void registerKeyBinding(String name, int key)
-	{
-		theWindow.registerKeyBinding(name, key);
 	}
 	
 	@Override

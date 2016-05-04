@@ -1,98 +1,189 @@
 package net.earthcomputer.galacticgame.util;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class Keyboard
+public class Keyboard extends KeyAdapter
 {
-	private static final Map<Integer, Set<String>> keyBindings = new HashMap<Integer, Set<String>>();
-	private static final Set<String> keysPressed = new HashSet<String>();
-	private static final Set<String> keysReleased = new HashSet<String>();
-	private static final Set<String> keysDown = new HashSet<String>();
-	private static final Set<String> pendingKeysPressed = new HashSet<String>();
-	private static final Set<String> pendingKeysReleased = new HashSet<String>();
-	private static boolean enableRepeatEvents = false;
 	
-	private static final Object SYNC_LOCK = new Object();
+	private static final Keyboard INSTANCE = new Keyboard();
+	
+	private final Map<Integer, Set<String>> keyBindingsCodeToName = new HashMap<Integer, Set<String>>();
+	private final Map<String, Set<Integer>> keyBindingsNameToCode = new HashMap<String, Set<Integer>>();
+	private final Set<Integer> keysPressed = new HashSet<Integer>();
+	private final Set<Integer> keysReleased = new HashSet<Integer>();
+	private final Set<Integer> keysDown = new HashSet<Integer>();
+	private final Set<Integer> pendingKeysPressed = new HashSet<Integer>();
+	private final Set<Integer> pendingKeysReleased = new HashSet<Integer>();
+	private boolean enableRepeatEvents = false;
+	
+	private final Object SYNC_LOCK = new Object();
 	
 	private Keyboard()
 	{
 	}
 	
+	public static Keyboard instance()
+	{
+		return INSTANCE;
+	}
+	
+	public static void registerKeyBindings()
+	{
+		bindKey(KeyEvent.VK_LEFT, "moveLeft");
+		bindKey(KeyEvent.VK_RIGHT, "moveRight");
+		bindKey(KeyEvent.VK_SPACE, "jump");
+		bindKey(KeyEvent.VK_UP, "jump");
+		bindKey(KeyEvent.VK_ESCAPE, "closeGui");
+		bindKey(KeyEvent.VK_UP, "scrollUp");
+		bindKey(KeyEvent.VK_DOWN, "scrollDown");
+	}
+	
 	public static void bindKey(int keyCode, String name)
 	{
-		if(!keyBindings.containsKey(keyCode))
+		INSTANCE.doBindKey(keyCode, name);
+	}
+	
+	private void doBindKey(int keyCode, String name)
+	{
+		if(!keyBindingsCodeToName.containsKey(keyCode))
 		{
-			keyBindings.put(keyCode, new HashSet<String>());
+			keyBindingsCodeToName.put(keyCode, new HashSet<String>());
 		}
-		keyBindings.get(keyCode).add(name);
+		keyBindingsCodeToName.get(keyCode).add(name);
+		
+		if(!keyBindingsNameToCode.containsKey(name))
+		{
+			keyBindingsNameToCode.put(name, new HashSet<Integer>());
+		}
+		keyBindingsNameToCode.get(name).add(keyCode);
 	}
 	
 	public static boolean isKeyPressed(String keyBinding)
 	{
+		return INSTANCE.doIsKeyPressed(keyBinding);
+	}
+	
+	private boolean doIsKeyPressed(String keyBinding)
+	{
+		Set<Integer> possibleKeys = keyBindingsNameToCode.get(keyBinding);
+		if(possibleKeys == null){ return false; }
 		synchronized(SYNC_LOCK)
 		{
-			return keysPressed.contains(keyBinding);
+			for(Integer keyPressed : keysPressed)
+			{
+				if(possibleKeys.contains(keyPressed)){ return true; }
+			}
 		}
+		return false;
 	}
 	
 	public static boolean isKeyReleased(String keyBinding)
 	{
+		return INSTANCE.doIsKeyReleased(keyBinding);
+	}
+	
+	private boolean doIsKeyReleased(String keyBinding)
+	{
+		Set<Integer> possibleKeys = keyBindingsNameToCode.get(keyBinding);
+		if(possibleKeys == null){ return false; }
 		synchronized(SYNC_LOCK)
 		{
-			return keysReleased.contains(keyBinding);
+			for(Integer keyReleased : keysReleased)
+			{
+				if(possibleKeys.contains(keyReleased)){ return true; }
+			}
 		}
+		return false;
 	}
 	
 	public static boolean isKeyDown(String keyBinding)
 	{
+		return INSTANCE.doIsKeyDown(keyBinding);
+	}
+	
+	private boolean doIsKeyDown(String keyBinding)
+	{
+		Set<Integer> possibleKeys = keyBindingsNameToCode.get(keyBinding);
+		if(possibleKeys == null){ return false; }
 		synchronized(SYNC_LOCK)
 		{
-			return keysDown.contains(keyBinding);
+			for(Integer keyDown : keysDown)
+			{
+				if(possibleKeys.contains(keyDown)){ return true; }
+			}
 		}
+		return false;
 	}
 	
 	public static void pressKey(int keyCode)
 	{
-		if(keyBindings.containsKey(keyCode))
+		INSTANCE.doPressKey(keyCode);
+	}
+	
+	private void doPressKey(int keyCode)
+	{
+		synchronized(SYNC_LOCK)
 		{
-			for(String name : keyBindings.get(keyCode))
-			{
-				pressKey(name);
-			}
+			if(enableRepeatEvents || !keysDown.contains(keyCode)) pendingKeysPressed.add(keyCode);
 		}
 	}
 	
 	public static void pressKey(String keyBinding)
 	{
-		synchronized(SYNC_LOCK)
+		INSTANCE.doPressKey(keyBinding);
+	}
+	
+	private void doPressKey(String keyBinding)
+	{
+		if(keyBindingsNameToCode.containsKey(keyBinding))
 		{
-			if(enableRepeatEvents || !keysDown.contains(keyBinding)) pendingKeysPressed.add(keyBinding);
+			for(Integer key : keyBindingsNameToCode.get(keyBinding))
+			{
+				doPressKey(key);
+			}
 		}
 	}
 	
 	public static void releaseKey(int keyCode)
 	{
-		if(keyBindings.containsKey(keyCode))
+		INSTANCE.doReleaseKey(keyCode);
+	}
+	
+	private void doReleaseKey(int keyCode)
+	{
+		synchronized(SYNC_LOCK)
 		{
-			for(String name : keyBindings.get(keyCode))
-			{
-				releaseKey(name);
-			}
+			pendingKeysReleased.add(keyCode);
 		}
 	}
 	
 	public static void releaseKey(String keyBinding)
 	{
-		synchronized(SYNC_LOCK)
+		INSTANCE.doReleaseKey(keyBinding);
+	}
+	
+	private void doReleaseKey(String keyBinding)
+	{
+		if(keyBindingsNameToCode.containsKey(keyBinding))
 		{
-			pendingKeysReleased.add(keyBinding);
+			for(Integer key : keyBindingsNameToCode.get(keyBinding))
+			{
+				doReleaseKey(key);
+			}
 		}
 	}
 	
 	public static void clearKeys()
+	{
+		INSTANCE.doClearKeys();
+	}
+	
+	private void doClearKeys()
 	{
 		synchronized(SYNC_LOCK)
 		{
@@ -102,6 +193,11 @@ public class Keyboard
 	
 	public static void enableRepeatEvents()
 	{
+		INSTANCE.doEnableRepeatEvents();
+	}
+	
+	private void doEnableRepeatEvents()
+	{
 		synchronized(SYNC_LOCK)
 		{
 			enableRepeatEvents = true;
@@ -109,6 +205,11 @@ public class Keyboard
 	}
 	
 	public static void disableRepeatEvents()
+	{
+		INSTANCE.doDisableRepeatEvents();
+	}
+	
+	private void doDisableRepeatEvents()
 	{
 		synchronized(SYNC_LOCK)
 		{
@@ -118,23 +219,40 @@ public class Keyboard
 	
 	public static void updateTick()
 	{
+		INSTANCE.doUpdateTick();
+	}
+	
+	private void doUpdateTick()
+	{
 		synchronized(SYNC_LOCK)
 		{
 			keysPressed.clear();
-			for(String keyBinding : pendingKeysPressed)
+			for(Integer key : pendingKeysPressed)
 			{
-				keysPressed.add(keyBinding);
-				keysDown.add(keyBinding);
+				keysPressed.add(key);
+				keysDown.add(key);
 			}
 			pendingKeysPressed.clear();
 			
 			keysReleased.clear();
-			for(String keyBinding : pendingKeysReleased)
+			for(Integer key : pendingKeysReleased)
 			{
-				keysReleased.add(keyBinding);
-				keysDown.remove(keyBinding);
+				keysReleased.add(key);
+				keysDown.remove(key);
 			}
 			pendingKeysReleased.clear();
 		}
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent event)
+	{
+		doPressKey(event.getKeyCode());
+	}
+	
+	@Override
+	public void keyReleased(KeyEvent event)
+	{
+		doReleaseKey(event.getKeyCode());
 	}
 }
