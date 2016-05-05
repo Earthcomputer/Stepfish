@@ -71,9 +71,35 @@ public class PlayerObject extends PhysicsObject
 	@Override
 	public void update()
 	{
+		// Physics
 		super.update();
 		
+		// Terminal velocity
 		if(getYVelocity() > 10) setYVelocity(10);
+		
+		// Move to contact with solids
+		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
+		{
+			moveToContactHelper.moveToContact();
+		}
+		
+		// STAND if there is a solid below
+		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
+			wallCollisionPredicate))
+		{
+			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
+		}
+		else
+		{
+			if(state.needsSupport()) changeState(EnumPlayerState.AIR);
+		}
+		
+		// Keyboard input
+		if(Keyboard.isKeyPressed("jump") && state.needsSupport())
+		{
+			changeState(EnumPlayerState.AIR);
+			accelerateY(-8);
+		}
 		
 		if(Keyboard.isKeyDown("moveLeft"))
 		{
@@ -93,33 +119,12 @@ public class PlayerObject extends PhysicsObject
 			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
 		}
 		
-		if(Keyboard.isKeyPressed("jump") && state.needsSupport())
-		{
-			changeState(EnumPlayerState.AIR);
-			accelerateY(-8);
-			move(0, -1);
-		}
-		
 		if(Keyboard.isKeyPressed("closeGui"))
 		{
 			window.openGui(new GuiPauseMenu());
 		}
 		
-		if(window.isObjectCollidedWith(this, wallCollisionPredicate))
-		{
-			moveToContactHelper.moveToContact();
-		}
-		
-		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
-			wallCollisionPredicate))
-		{
-			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
-		}
-		else
-		{
-			if(state.needsSupport()) changeState(EnumPlayerState.AIR);
-		}
-		
+		// Restart level if fallen off
 		if(getY() >= window.getHeight()) window.restartLevel();
 	}
 	
