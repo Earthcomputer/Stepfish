@@ -14,6 +14,8 @@ import net.earthcomputer.galacticgame.util.Predicate;
 public class PlayerObject extends PhysicsObject
 {
 	
+	private static final double JUST_BELOW_16 = Math.nextDown(16);
+	
 	private EnumPlayerState state;
 	private EnumElement element;
 	private Velocity downwardsGravity;
@@ -84,7 +86,7 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		// STAND if there is a solid below
-		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
+		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + JUST_BELOW_16, getY() + 16),
 			wallCollisionPredicate))
 		{
 			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
