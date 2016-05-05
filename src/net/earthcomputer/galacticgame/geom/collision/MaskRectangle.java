@@ -27,6 +27,16 @@ public class MaskRectangle extends CollisionMask<Rectangle2D>
 	@Override
 	protected Rectangle2D translate(Rectangle2D shape, double x, double y)
 	{
+		if(x == 0 && y == 0) return shape;
+		
+		if(shape instanceof Rectangle2D.Double)
+		{
+			Rectangle2D.Double rect = (Rectangle2D.Double) shape;
+			rect.x += x;
+			rect.y += y;
+			return rect;
+		}
+		
 		return new Rectangle2D.Double(shape.getX() + x, shape.getY() + y, shape.getWidth(), shape.getHeight());
 	}
 	

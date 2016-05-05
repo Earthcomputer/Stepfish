@@ -26,9 +26,17 @@ public class MaskEllipse extends CollisionMask<Ellipse2D>
 	@Override
 	protected Ellipse2D translate(Ellipse2D shape, double x, double y)
 	{
-		if(x == 0 && y == 0)
-			return shape;
-		else return new Ellipse2D.Double(shape.getX() + x, shape.getY() + y, shape.getWidth(), shape.getHeight());
+		if(x == 0 && y == 0) return shape;
+		
+		if(shape instanceof Ellipse2D.Double)
+		{
+			Ellipse2D.Double ellipse = (Ellipse2D.Double) shape;
+			ellipse.x += x;
+			ellipse.y += y;
+			return ellipse;
+		}
+		
+		return new Ellipse2D.Double(shape.getX() + x, shape.getY() + y, shape.getWidth(), shape.getHeight());
 	}
 	
 	@Override
