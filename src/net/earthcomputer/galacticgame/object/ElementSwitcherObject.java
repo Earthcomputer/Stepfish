@@ -1,7 +1,6 @@
 package net.earthcomputer.galacticgame.object;
 
 import java.awt.Graphics;
-import java.util.List;
 
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
@@ -33,12 +32,13 @@ public class ElementSwitcherObject extends GameObject implements IUpdateListener
 	@Override
 	public void update()
 	{
-		List<PlayerObject> collided = window.getObjectsThatCollideWith(this, PlayerObject.class);
-		for(PlayerObject player : collided)
+		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
-			player.setElement(player.getElement().nextElement());
+			for(PlayerObject player : window.listObjects(PlayerObject.class))
+			{
+				player.setElement(player.getElement().nextElement());
+			}
 			window.removeObject(this);
-			break;
 		}
 	}
 	
