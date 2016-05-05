@@ -124,6 +124,15 @@ public class PlayerObject extends PhysicsObject
 			window.openGui(new GuiPauseMenu());
 		}
 		
+		// Mud
+		if(window.isObjectCollidedWith(this, MudObject.class))
+		{
+			if(getSpeed() > 1)
+			{
+				setSpeed(1);
+			}
+		}
+		
 		// Restart level if fallen off
 		if(getY() >= window.getHeight()) window.restartLevel();
 	}
