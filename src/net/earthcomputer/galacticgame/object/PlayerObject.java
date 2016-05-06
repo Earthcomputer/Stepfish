@@ -18,8 +18,6 @@ public class PlayerObject extends PhysicsObject
 	
 	private EnumPlayerState state;
 	private EnumElement element;
-	private Velocity downwardsGravity;
-	private int downwardsGravityId;
 	
 	private Predicate<GameObject> wallCollisionPredicate = new Predicate<GameObject>() {
 		
@@ -37,8 +35,6 @@ public class PlayerObject extends PhysicsObject
 	public PlayerObject(double x, double y)
 	{
 		super(x, y);
-		downwardsGravity = Velocity.createFromSpeedAndDirection(0, 90);
-		downwardsGravityId = addGravity(downwardsGravity);
 		changeState(EnumPlayerState.AIR);
 		element = EnumElement.EARTH;
 		setCollisionMask(new MaskRectangle(16, 16));
@@ -50,14 +46,13 @@ public class PlayerObject extends PhysicsObject
 		this.state = newState;
 		if(newState.hasGravity())
 		{
-			downwardsGravity.setSpeed(1);
+			setGravity(Velocity.createFromSpeedAndDirection(1, 90));
 		}
 		else
 		{
-			downwardsGravity.setSpeed(0);
+			removeGravity();
 			setYVelocity(0);
 		}
-		updateGravity(downwardsGravityId, downwardsGravity);
 	}
 	
 	public EnumElement getElement()

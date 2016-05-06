@@ -1,8 +1,5 @@
 package net.earthcomputer.galacticgame.object;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.Pos;
 import net.earthcomputer.galacticgame.geom.Velocity;
@@ -12,13 +9,13 @@ public class PhysicsObject extends GameObject implements IUpdateListener
 	
 	private Pos posPrev;
 	private Velocity velocity;
-	private Map<Integer, Velocity> gravities = new HashMap<Integer, Velocity>();
-	private int nextGravityId = 0;
+	private Velocity gravity;
 	
 	public PhysicsObject(double x, double y)
 	{
 		super(x, y);
 		this.velocity = Velocity.createFromXAndYComponents(0, 0);
+		this.gravity = Velocity.createFromXAndYComponents(0, 0);
 	}
 	
 	public Velocity getVelocity()
@@ -95,22 +92,25 @@ public class PhysicsObject extends GameObject implements IUpdateListener
 	 * 
 	 * @param gravity
 	 * @return The unique gravity id to refer to this gravity later on */
-	public int addGravity(Velocity gravity)
+	public void addGravity(Velocity gravity)
 	{
-		gravities.put(nextGravityId, Velocity.copyOf(gravity));
-		return nextGravityId++;
+		this.gravity.accelerate(gravity);
 	}
 	
-	public void updateGravity(int gravityId, Velocity newGravity)
+	public void setGravity(Velocity gravity)
 	{
-		if(!gravities.containsKey(gravityId)){ throw new IllegalArgumentException(
-			"No gravity is registered to this object with the id " + gravityId + ", cannot update"); }
-		gravities.put(gravityId, Velocity.copyOf(newGravity));
+		this.gravity.setSpeed(gravity.getSpeed());
+		this.gravity.setDirection(gravity.getDirection());
 	}
 	
-	public void removeGravity(int gravityId)
+	public void removeGravity()
 	{
-		gravities.remove(gravityId);
+		this.gravity.setSpeed(0);
+	}
+	
+	public Velocity getGravity()
+	{
+		return Velocity.copyOf(gravity);
 	}
 	
 	public Pos getPreviousPos()
@@ -125,10 +125,7 @@ public class PhysicsObject extends GameObject implements IUpdateListener
 		
 		move(velocity.getXComponent(), velocity.getYComponent());
 		
-		for(Velocity gravity : gravities.values())
-		{
-			velocity.accelerate(gravity);
-		}
+		velocity.accelerate(gravity);
 	}
 	
 }
