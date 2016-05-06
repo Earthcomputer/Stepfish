@@ -34,6 +34,16 @@ public abstract class GameObject
 		this.window = githubGame.getWindow();
 	}
 	
+	/** Called directly after being added to the level */
+	public void onAdded()
+	{
+	}
+	
+	/** Called directly after being removed from the level */
+	public void onRemoved()
+	{
+	}
+	
 	/** Gets the unmodifiable position of this game component */
 	public Pos getPos()
 	{

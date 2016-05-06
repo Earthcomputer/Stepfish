@@ -159,6 +159,7 @@ public class MainWindow
 				public void run()
 				{
 					objects.add(instance);
+					instance.onAdded();
 				}
 			});
 			if(instance instanceof IUpdateListener) addUpdateListener((IUpdateListener) instance);
@@ -173,6 +174,7 @@ public class MainWindow
 			public void run()
 			{
 				objects.remove(object);
+				object.onRemoved();
 			}
 		});
 		if(object instanceof IUpdateListener) removeUpdateListener((IUpdateListener) object);
