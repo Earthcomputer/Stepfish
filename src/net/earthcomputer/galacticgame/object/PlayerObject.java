@@ -79,7 +79,7 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		// STAND if there is a solid below
-		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
+		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 14.9, getY() + 16),
 			wallCollisionPredicate))
 		{
 			if(!state.needsSupport()) changeState(EnumPlayerState.STAND);
