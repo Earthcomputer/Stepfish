@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.util.Images;
@@ -27,12 +26,12 @@ public class GuiSelectProfile extends GuiScrollable
 	{
 		super.init();
 		
-		List<String> profileNames = Profiles.getProfileNameList();
+		List<String> profileNames = Profiles.getTakenProfileNameList();
 		
 		for(int i = 0; i < profileNames.size(); i++)
 		{
 			final String profileName = profileNames.get(i);
-			buttonList.add(new TextButton(profileName, 20, 20 + 80 * i, 500, 50) {
+			buttonList.add(new PlainTextButton(profileName, 20, 20 + 80 * i, 500, 50) {
 				@Override
 				public void onPressed()
 				{
@@ -44,7 +43,7 @@ public class GuiSelectProfile extends GuiScrollable
 				@Override
 				public void onPressed()
 				{
-					SwingUtilities.invokeLater(new Runnable() {
+					window.runLater(new Runnable() {
 						@Override
 						public void run()
 						{
@@ -65,6 +64,10 @@ public class GuiSelectProfile extends GuiScrollable
 							if(Profiles.getProfileCount() == 0)
 							{
 								window.openGui(new GuiMainMenu());
+							}
+							else
+							{
+								validate(width, height);
 							}
 						}
 					});

@@ -10,6 +10,7 @@ import java.util.Map;
 public class FontManager
 {
 	private static final Font galacticFont;
+	private static final Font englishFont = new Font(Font.MONOSPACED, Font.PLAIN, 24);
 	
 	static
 	{
@@ -70,6 +71,17 @@ public class FontManager
 	{
 		g.setFont(galacticFont);
 		g.drawString(convertStringToDrawable(text), x, y);
+	}
+	
+	public static int getPlainStringWidth(Graphics g, String text)
+	{
+		return g.getFontMetrics(englishFont).stringWidth(text);
+	}
+	
+	public static void drawPlainString(Graphics g, String text, int x, int y)
+	{
+		g.setFont(englishFont);
+		g.drawString(text, x, y);
 	}
 	
 }

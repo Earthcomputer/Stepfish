@@ -1,15 +1,12 @@
 package net.earthcomputer.galacticgame.gui;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 
 import net.earthcomputer.galacticgame.Levels;
 
 public class GuiSelectLevel extends GuiScrollable
 {
-	
-	public static final Font ENGLISH_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 24);
 	
 	public GuiSelectLevel(Gui prevGui)
 	{
@@ -36,8 +33,7 @@ public class GuiSelectLevel extends GuiScrollable
 				public void draw(int mouseX, int mouseY, Graphics g)
 				{
 					super.draw(mouseX, mouseY, g);
-					g.setFont(ENGLISH_FONT);
-					g.drawString((levelId + 1) + ".", getX() + 20, getY() + 35);
+					FontManager.drawPlainString(g, (levelId + 1) + ".", getX() + 20, getY() + 35);
 					if(levelId > window.getProfile().getCurrentLevel())
 					{
 						g.setColor(new Color(1f, 0f, 0f, 0.3f));
@@ -52,6 +48,13 @@ public class GuiSelectLevel extends GuiScrollable
 				}
 			});
 		}
+		staticButtonList.add(new Button("back", 530, 10) {
+			@Override
+			public void onPressed()
+			{
+				window.openGui(prevGui);
+			}
+		});
 	}
 	
 }

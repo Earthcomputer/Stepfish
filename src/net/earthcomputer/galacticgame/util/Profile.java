@@ -4,13 +4,15 @@ import java.util.ArrayList;
 
 public final class Profile
 {
+	final int nameId;
 	final String name;
 	int currentLevel;
 	ArrayList<Integer> starsObtained;
 	int totalStarsObtained;
 	
-	Profile(String name, int currentLevel, int[] starsObtained, int totalStarsObtained)
+	Profile(int nameId, String name, int currentLevel, int[] starsObtained, int totalStarsObtained)
 	{
+		this.nameId = nameId;
 		this.name = name;
 		this.currentLevel = currentLevel;
 		this.starsObtained = new ArrayList<Integer>(starsObtained.length);

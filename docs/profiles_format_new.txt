@@ -1,0 +1,10 @@
+u4: magic (always "PRFL" in ASCII, or 0x5052464C in hex)
+u1: version (always 0 at the moment)
+u1: profile-count {
+	s2: profile-name-id (may be negative for old random profile names)
+	u1: level-they-are-on
+	obj[level-they-are-on]: stars-obtained {
+		u1: stars-obtained-on-this-level (bitflags, 0x1 set means first star obtained, 0x2 set means second star obtained, 0x4 means third star obtained)
+	}
+	u2: total-stars-obtained
+}

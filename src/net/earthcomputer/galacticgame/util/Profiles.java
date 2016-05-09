@@ -20,7 +20,11 @@ import net.earthcomputer.galacticgame.GalacticGame;
 public class Profiles
 {
 	
-	private static final int CURRENT_PROFILES_VERSION = 0;
+	private static final String[] PROFILE_NAMES = new String[] { "Zing", "Fylop", "Quizzle", "Blob", "Hija", "Dingdong",
+			"Dr Doodledoo", "Yamfodeter", "Plaasm", "Eje", "Botemarkcomp", "Mrs Mtwtfss" };
+			
+	private static final int VERSION_OLD = 0;
+	private static final int CURRENT_PROFILES_VERSION = 1;
 	private static final List<Profile> profiles = new ArrayList<Profile>();
 	
 	private Profiles()
@@ -74,27 +78,96 @@ public class Profiles
 		DataInputStream input = new DataInputStream(
 			new GZIPInputStream(new BufferedInputStream(new FileInputStream(profilesFile))));
 			
+		try
+		{
+			if(input.readInt() != 0x5052464c){ return false; }
+			
+			int version = input.readUnsignedByte();
+			if(version > CURRENT_PROFILES_VERSION)
+			{
+				return false;
+			}
+			else if(version == VERSION_OLD)
+			{
+				return loadProfilesOld(input);
+			}
+			else
+			{
+				return loadProfilesNew(input);
+			}
+		}
+		finally
+		{
+			input.close();
+		}
+	}
+	
+	private static boolean loadProfilesOld(DataInputStream input) throws IOException
+	{
 		int profileCount;
 		String[] profileNames;
 		int[] levelsTheyreOn;
 		int[][] starsObtained;
 		int[] totalStarsObtained;
 		
-		try
+		profileCount = input.readUnsignedByte();
+		
+		profileNames = new String[profileCount];
+		levelsTheyreOn = new int[profileCount];
+		starsObtained = new int[profileCount][];
+		totalStarsObtained = new int[profileCount];
+		
+		for(int profile = 0; profile < profileCount; profile++)
 		{
-			if(input.readInt() != 0x5052464c){ return false; }
+			char[] nameChars = new char[16];
+			for(int i = 0; i < nameChars.length; i++)
+			{
+				nameChars[i] = (char) input.readUnsignedByte();
+			}
+			profileNames[profile] = new String(nameChars);
 			
-			int version = input.readUnsignedByte();
-			if(version > CURRENT_PROFILES_VERSION){ return false; }
+			int levelTheyreOn = input.readUnsignedByte();
+			levelsTheyreOn[profile] = levelTheyreOn;
 			
-			profileCount = input.readUnsignedByte();
+			int[] starsTheyveObtained = new int[levelTheyreOn];
+			starsObtained[profile] = starsTheyveObtained;
+			for(int i = 0; i < levelTheyreOn; i++)
+			{
+				starsTheyveObtained[i] = input.readUnsignedByte();
+			}
 			
-			profileNames = new String[profileCount];
-			levelsTheyreOn = new int[profileCount];
-			starsObtained = new int[profileCount][];
-			totalStarsObtained = new int[profileCount];
-			
-			for(int profile = 0; profile < profileCount; profile++)
+			totalStarsObtained[profile] = input.readUnsignedShort();
+		}
+		
+		profiles.clear();
+		for(int i = 0; i < profileCount; i++)
+		{
+			profiles.add(new Profile(-i, profileNames[i], levelsTheyreOn[i], starsObtained[i], totalStarsObtained[i]));
+		}
+		return true;
+	}
+	
+	private static boolean loadProfilesNew(DataInputStream input) throws IOException
+	{
+		int profileCount;
+		int[] profileNameIds;
+		String[] profileNames;
+		int[] levelsTheyreOn;
+		int[][] starsObtained;
+		int[] totalStarsObtained;
+		
+		profileCount = input.readUnsignedByte();
+		
+		profileNameIds = new int[profileCount];
+		profileNames = new String[profileCount];
+		levelsTheyreOn = new int[profileCount];
+		starsObtained = new int[profileCount][];
+		totalStarsObtained = new int[profileCount];
+		
+		for(int profile = 0; profile < profileCount; profile++)
+		{
+			profileNameIds[profile] = input.readShort();
+			if(profileNameIds[profile] < 0)
 			{
 				char[] nameChars = new char[16];
 				for(int i = 0; i < nameChars.length; i++)
@@ -102,31 +175,35 @@ public class Profiles
 					nameChars[i] = (char) input.readUnsignedByte();
 				}
 				profileNames[profile] = new String(nameChars);
-				
-				int levelTheyreOn = input.readUnsignedByte();
-				levelsTheyreOn[profile] = levelTheyreOn;
-				
-				int[] starsTheyveObtained = new int[levelTheyreOn];
-				starsObtained[profile] = starsTheyveObtained;
-				for(int i = 0; i < levelTheyreOn; i++)
-				{
-					starsTheyveObtained[i] = input.readUnsignedByte();
-				}
-				
-				totalStarsObtained[profile] = input.readUnsignedShort();
 			}
-		}
-		finally
-		{
-			input.close();
+			else if(profileNameIds[profile] >= PROFILE_NAMES.length)
+			{
+				return false;
+			}
+			else
+			{
+				profileNames[profile] = PROFILE_NAMES[profileNameIds[profile]];
+			}
+			
+			int levelTheyreOn = input.readUnsignedByte();
+			levelsTheyreOn[profile] = levelTheyreOn;
+			
+			int[] starsTheyveObtained = new int[levelTheyreOn];
+			starsObtained[profile] = starsTheyveObtained;
+			for(int i = 0; i < levelTheyreOn; i++)
+			{
+				starsTheyveObtained[i] = input.readUnsignedByte();
+			}
+			
+			totalStarsObtained[profile] = input.readUnsignedShort();
 		}
 		
 		profiles.clear();
 		for(int i = 0; i < profileCount; i++)
 		{
-			profiles.add(new Profile(profileNames[i], levelsTheyreOn[i], starsObtained[i], totalStarsObtained[i]));
+			profiles.add(new Profile(profileNameIds[i], profileNames[i], levelsTheyreOn[i], starsObtained[i],
+				totalStarsObtained[i]));
 		}
-		
 		return true;
 	}
 	
@@ -147,10 +224,14 @@ public class Profiles
 		output.write(profiles.size());
 		for(Profile profile : profiles)
 		{
-			assert profile.name.length() == 16;
-			for(char c : profile.name.toCharArray())
+			output.writeShort(profile.nameId);
+			if(profile.nameId < 0)
 			{
-				output.write(c);
+				assert profile.name.length() == 16;
+				for(char c : profile.name.toCharArray())
+				{
+					output.write(c);
+				}
 			}
 			output.write(profile.currentLevel);
 			assert profile.starsObtained.size() == profile.currentLevel;
@@ -166,7 +247,22 @@ public class Profiles
 	
 	public static Profile createProfile(String name)
 	{
-		Profile profile = new Profile(name, 0, new int[0], 0);
+		int id = -1;
+		for(int i = 0; i < PROFILE_NAMES.length; i++)
+		{
+			if(name.equals(PROFILE_NAMES[i]))
+			{
+				id = i;
+				break;
+			}
+		}
+		if(id == -1){ throw new IllegalArgumentException("The given name does not match any possible names"); }
+		return createProfile(id);
+	}
+	
+	public static Profile createProfile(int nameId)
+	{
+		Profile profile = new Profile(nameId, PROFILE_NAMES[nameId], 0, new int[0], 0);
 		profiles.add(profile);
 		return profile;
 	}
@@ -183,7 +279,21 @@ public class Profiles
 		return profiles.size();
 	}
 	
-	public static List<String> getProfileNameList()
+	public static List<String> getAvailableProfileNameList()
+	{
+		List<String> taken = getTakenProfileNameList();
+		List<String> available = new ArrayList<String>();
+		for(String name : PROFILE_NAMES)
+		{
+			if(!taken.contains(name))
+			{
+				available.add(name);
+			}
+		}
+		return available;
+	}
+	
+	public static List<String> getTakenProfileNameList()
 	{
 		List<String> names = new ArrayList<String>();
 		for(Profile profile : profiles)

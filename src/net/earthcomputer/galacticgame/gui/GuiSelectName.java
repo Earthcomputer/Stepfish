@@ -1,7 +1,7 @@
 package net.earthcomputer.galacticgame.gui;
 
 import java.io.IOException;
-import java.util.Random;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -13,18 +13,27 @@ public class GuiSelectName extends GuiScrollable
 	
 	public GuiSelectName(Gui prevGui)
 	{
-		super(prevGui, 810);
+		super(prevGui, 1);
 	}
 	
 	@Override
 	public void init()
 	{
+		List<String> freeProfileNames = Profiles.getAvailableProfileNameList();
+		if(freeProfileNames.isEmpty())
+		{
+			window.openGui(new GuiMainMenu());
+		}
+		else
+		{
+			setContentHeight(10 + freeProfileNames.size() * 80);
+		}
+		
 		super.init();
 		
-		Random random = new Random();
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < freeProfileNames.size(); i++)
 		{
-			buttonList.add(new TextButton(GalacticGame.randomGenTitle(random.nextInt()), 20, 20 + i * 80, 500, 50) {
+			buttonList.add(new PlainTextButton(freeProfileNames.get(i), 20, 20 + i * 80, 500, 50) {
 				@Override
 				public void onPressed()
 				{

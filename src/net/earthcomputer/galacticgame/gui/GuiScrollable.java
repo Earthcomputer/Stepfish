@@ -15,7 +15,7 @@ public class GuiScrollable extends Gui
 {
 	private static final int SCROLL_BAR_WIDTH = 7;
 	
-	private Gui prevGui;
+	protected Gui prevGui;
 	private int amtScrolled;
 	private int maxScroll;
 	private int scrollBarTop;
