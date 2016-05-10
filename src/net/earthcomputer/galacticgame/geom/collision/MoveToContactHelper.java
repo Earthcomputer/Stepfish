@@ -31,80 +31,130 @@ public class MoveToContactHelper
 	
 	public <T extends Shape> void moveToContact()
 	{
+		/** The position we're moving to contact from */
 		Pos prevPos = theObject.getPreviousPos();
+		/** The position the object first collided with a wall */
 		Pos pos = theObject.getPos();
-		double movingX = pos.getX() - prevPos.getX();
-		double movingY = pos.getY() - prevPos.getY();
-		double absDX = Math.abs(movingX);
-		double absDY = Math.abs(movingY);
-		theObject.setPos(prevPos);
+		/** How the object has moved since the previous tick */
+		double dx = pos.getX() - prevPos.getX();
+		double dy = pos.getY() - prevPos.getY();
+		/** The absolute distance in each direction the object has moved */
+		double absDX = Math.abs(dx);
+		double absDY = Math.abs(dy);
+		/** The amount to move the object in each step in each direction */
+		double movingX, movingY;
+		/** The maximum amount of steps to take, acts as a safety net in case no collision is found */
 		double amtToMove;
+		
 		if(absDX < absDY)
 		{
+			// We're moving mostly vertically, movingX is the fractional variable
 			amtToMove = absDY;
-			movingX /= absDY;
-			movingY = Math.signum(movingY);
+			movingX = dx / absDY;
+			movingY = Math.signum(dy);
 		}
 		else
 		{
+			// We're moving mostly horizontally, movingY is the fractional variable
 			amtToMove = absDX;
-			movingY /= absDX;
-			movingX = Math.signum(movingX);
+			movingY = dy / absDX;
+			movingX = Math.signum(dx);
 		}
 		
 		@SuppressWarnings("unchecked")
+		/** The object's collision mask, used to make transformations etc. */
 		CollisionMask<T> mask = (CollisionMask<T>) theObject.getCollisionMask();
-		T rect = mask.getGlobalShape();
-		double x = prevPos.getX();
-		double y = prevPos.getY();
+		/** A base collision shape from before any steps */
+		T shapeStart = mask.translate(mask.getGlobalShape(), -dx, -dy);
+		/** A shape to test collision with */
+		T shapeTesting = null;
+		/** The starting position */
+		double xStart = prevPos.getX(), yStart = prevPos.getY();
+		/** The number of steps taken in each direction */
+		int stepsX = 0, stepsY = 0;
+		/** Whether stopped moving in a particular direction because of a collision */
+		boolean hitHorizontally = false, hitVertically = false;
 		
-		for(int i = 0; i < amtToMove; i++)
+		for(int step = 0; step < amtToMove; step++)
 		{
-			// Try moving diagonally first
-			rect = mask.translate(rect, movingX, movingY);
-			x += movingX;
-			y += movingY;
-			if(window.isShapeCollidedWith(rect, collisionPredicate))
+			// Try move diagonally
+			if(!hitHorizontally && !hitVertically)
 			{
-				// Try moving vertically by negating x
-				rect = mask.translate(rect, -movingX, 0);
-				x -= movingX;
-				if(window.isShapeCollidedWith(rect, collisionPredicate))
+				shapeTesting = mask.translate(mask.copy(shapeStart), (stepsX + 1) * movingX, (stepsY + 1) * movingY);
+			}
+			if(!hitHorizontally && !hitVertically && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
+			{
+				// Successfully moved diagonally
+				stepsX++;
+				stepsY++;
+			}
+			else
+			{
+				// Try move vertically
+				if(!hitVertically)
 				{
-					// Try moving horizontally by un-negating x and negating y
-					rect = mask.translate(rect, movingX, -movingY);
-					x += movingX;
-					y -= movingY;
-					if(window.isShapeCollidedWith(rect, collisionPredicate))
-					{
-						// Can't move anywhere, re-negate x
-						rect = mask.translate(rect, -movingX, 0);
-						x -= movingX;
-						
-						// Make both coords whole
-						x = movingX > 0 ? Math.ceil(x) : Math.floor(x);
-						y = movingY > 0 ? Math.ceil(y) : Math.floor(y);
-						// Stop moving
-						theObject.setSpeed(0);
-					}
-					else
-					{
-						// Successfully moved horizontally, make y-coord whole
-						y = movingY > 0 ? Math.ceil(y) : Math.floor(y);
-						// Stop vertical speed
-						theObject.setYVelocity(0);
-					}
+					shapeTesting = mask.translate(mask.copy(shapeStart), stepsX * movingX, (stepsY + 1) * movingY);
+				}
+				if(!hitVertically && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
+				{
+					// Successfully moved vertically
+					stepsY++;
+					hitHorizontally = true;
 				}
 				else
 				{
-					// Successfully moved vertically, make x-coord whole
-					x = movingX > 0 ? Math.ceil(x) : Math.floor(x);
-					// Stop horizontal speed
-					theObject.setXVelocity(0);
+					// Try move horizontally
+					if(!hitHorizontally)
+					{
+						shapeTesting = mask.translate(mask.copy(shapeStart), (stepsX + 1) * movingX, stepsY * movingY);
+					}
+					if(!hitHorizontally && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
+					{
+						// Successfully moved horizontally
+						stepsX++;
+						hitVertically = true;
+					}
+					else
+					{
+						// Couldn't move anywhere
+						hitHorizontally = true;
+						hitVertically = true;
+						break;
+					}
 				}
 			}
 		}
-		theObject.setPos(new Pos(x, y));
+		
+		// Correction
+		if(!hitHorizontally && !hitVertically)
+		{
+			// If we haven't hit anything, then there's no point doing anything
+			return;
+		}
+		
+		/** Destination positions */
+		double destX = xStart + stepsX * movingX;
+		double destY = yStart + stepsY * movingY;
+		
+		if(hitHorizontally)
+		{
+			// Align to grid horizontally
+			destX = movingX > 0 ? Math.ceil(destX) : Math.floor(destX);
+			// Update the object's x-position accordingly
+			theObject.setX(destX);
+			// Stop when hit
+			theObject.setXVelocity(0);
+		}
+		
+		if(hitVertically)
+		{
+			// Align to grid vertically
+			destY = movingY > 0 ? Math.ceil(destY) : Math.floor(destY);
+			// Update the object's y-position accordingly
+			theObject.setY(destY);
+			// Stop when hit
+			theObject.setYVelocity(0);
+		}
 	}
 	
 }

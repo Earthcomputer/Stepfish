@@ -5,6 +5,7 @@ import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Objects;
 
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.MainWindow;
@@ -192,6 +193,12 @@ public abstract class GameObject
 	public int getDepth()
 	{
 		return depth;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return String.format("%s[%f, %f]", getClass().getSimpleName(), getX(), getY());
 	}
 	
 }

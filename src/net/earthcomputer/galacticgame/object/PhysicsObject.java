@@ -128,4 +128,11 @@ public class PhysicsObject extends GameObject implements IUpdateListener
 		velocity.accelerate(gravity);
 	}
 	
+	@Override
+	public String toString()
+	{
+		return String.format("%s{pos=[%f, %f], vel=[%f, %f]}", getClass().getSimpleName(), getX(), getY(),
+			getXVelocity(), getYVelocity());
+	}
+	
 }
