@@ -1,12 +1,15 @@
 package net.earthcomputer.galacticgame.object;
 
-import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
+import net.earthcomputer.galacticgame.util.Images;
 
 public class MudObject extends GameObject
 {
+	
+	private static final BufferedImage texture = Images.loadImage("object/mud");
 	
 	public MudObject(double x, double y)
 	{
@@ -17,8 +20,7 @@ public class MudObject extends GameObject
 	@Override
 	public void draw(Graphics g)
 	{
-		g.setColor(Color.RED.darker().darker());
-		g.fillRect((int) getX(), (int) getY(), 16, 16);
+		g.drawImage(texture, (int) getX(), (int) getY(), null);
 	}
 	
 }

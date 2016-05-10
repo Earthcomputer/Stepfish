@@ -1,14 +1,28 @@
 package net.earthcomputer.galacticgame.object;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.util.EnumMap;
 
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskPolygon;
+import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.Predicate;
 
 public class SpikeObject extends GameObject implements IUpdateListener
 {
+	
+	private static final EnumMap<EnumElement, BufferedImage> textures = new EnumMap<EnumElement, BufferedImage>(
+		EnumElement.class);
+		
+	static
+	{
+		for(EnumElement element : EnumElement.values())
+		{
+			textures.put(element, Images.loadImage("object/spike_" + element.getName()));
+		}
+	}
 	
 	private static final int SWITCH_RATE = GalacticGame.TICKRATE;
 	private EnumElement element;
@@ -22,7 +36,7 @@ public class SpikeObject extends GameObject implements IUpdateListener
 	public SpikeObject(double x, double y, EnumElement element, boolean switching)
 	{
 		super(x, y);
-		setCollisionMask(new MaskPolygon(new int[] { 0, 16, 8 }, new int[] { 16, 16, 4 }, 3));
+		setCollisionMask(new MaskPolygon(new int[] { 0, 16, 8 }, new int[] { 16, 16, 0 }, 3));
 		this.element = element;
 		ticksUntilSwitch = switching ? SWITCH_RATE : -1;
 	}
@@ -32,8 +46,7 @@ public class SpikeObject extends GameObject implements IUpdateListener
 	{
 		int x = (int) getX();
 		int y = (int) getY();
-		g.setColor(element.getColor());
-		g.fillPolygon(new int[] { x, x + 16, x + 8 }, new int[] { y + 16, y + 16, y + 4 }, 3);
+		g.drawImage(textures.get(element), x, y, null);
 	}
 	
 	@Override

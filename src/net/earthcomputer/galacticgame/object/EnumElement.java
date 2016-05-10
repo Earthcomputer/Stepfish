@@ -4,18 +4,26 @@ import java.awt.Color;
 
 public enum EnumElement
 {
-	EARTH(Color.GREEN.darker()), WATER(Color.BLUE), AIR(Color.CYAN.darker()), FIRE(Color.ORANGE);
-	
+	EARTH(Color.GREEN.darker(), "earth"), WATER(Color.BLUE, "water"), AIR(Color.CYAN.darker(),
+		"air"), FIRE(Color.ORANGE, "fire");
+		
 	private final Color color;
+	private final String name;
 	
-	private EnumElement(Color color)
+	private EnumElement(Color color, String name)
 	{
 		this.color = color;
+		this.name = name;
 	}
 	
 	public Color getColor()
 	{
 		return color;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 	
 	public EnumElement nextElement()

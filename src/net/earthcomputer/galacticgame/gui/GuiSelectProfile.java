@@ -14,7 +14,7 @@ import net.earthcomputer.galacticgame.util.Profiles;
 public class GuiSelectProfile extends GuiScrollable
 {
 	
-	private static final BufferedImage profilePic = Images.loadImage("profile_pic");
+	private static final BufferedImage profilePic = Images.loadImage("gui/profile_pic");
 	
 	public GuiSelectProfile(Gui prevGui)
 	{

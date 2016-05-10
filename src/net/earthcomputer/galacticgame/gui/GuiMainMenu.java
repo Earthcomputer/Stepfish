@@ -9,10 +9,10 @@ import net.earthcomputer.galacticgame.util.Profiles;
 
 public class GuiMainMenu extends Gui
 {
-	private static final BufferedImage logo = Images.loadImage("logo");
-	private static final BufferedImage play = Images.loadImage("resume");
-	private static final BufferedImage load = Images.loadImage("select_profile");
-	private static final BufferedImage quit = Images.loadImage("quit");
+	private static final BufferedImage logo = Images.loadImage("gui/logo");
+	private static final BufferedImage play = Images.loadImage("gui/resume");
+	private static final BufferedImage load = Images.loadImage("gui/select_profile");
+	private static final BufferedImage quit = Images.loadImage("gui/quit");
 	
 	@Override
 	public void init()

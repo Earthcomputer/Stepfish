@@ -1,16 +1,27 @@
 package net.earthcomputer.galacticgame.object;
 
-import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
-import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
+import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.Predicate;
 
 public class FlyingCrossObject extends GameObject implements IUpdateListener
 {
+	private static final BufferedImage[] texture = new BufferedImage[2];
+	private static final int TICKS_PER_FRAME = 15;
+	
+	static
+	{
+		for(int i = 0; i < texture.length; i++)
+		{
+			texture[i] = Images.loadImage("object/flying_cross_" + i);
+		}
+	}
+	
 	private static final int MOVE_SPEED = 3;
 	
 	private static final Predicate<GameObject> WALL_COLLISION = new Predicate<GameObject>() {
@@ -22,7 +33,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 		}
 	};
 	
-	private int frames = 0;
+	private int ticksExisted = 0;
 	private double startingY;
 	private double attackTargetY;
 	private EnumState state;
@@ -41,23 +52,13 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 	{
 		int x = (int) getX();
 		int y = (int) getY();
-		g.setColor(Color.WHITE);
-		if(frames % GalacticGame.FRAMERATE < GalacticGame.FRAMERATE / 2)
-		{
-			g.drawLine(x + 3, y + 3, x + 13, y + 13);
-			g.drawLine(x + 3, y + 13, x + 13, y + 3);
-		}
-		else
-		{
-			g.drawLine(x + 8, y + 1, x + 8, y + 15);
-			g.drawLine(x + 1, y + 8, x + 15, y + 8);
-		}
-		frames++;
+		g.drawImage(texture[(ticksExisted / TICKS_PER_FRAME) % 2], x, y, null);
 	}
 	
 	@Override
 	public void update()
 	{
+		ticksExisted++;
 		switch(state)
 		{
 			case ATTACK_DOWN:

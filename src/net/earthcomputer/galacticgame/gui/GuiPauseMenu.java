@@ -9,10 +9,10 @@ import net.earthcomputer.galacticgame.util.Images;
 public class GuiPauseMenu extends Gui
 {
 	
-	private static final BufferedImage backgroundImage = Images.loadImage("pause_background");
-	private static final BufferedImage resumeImage = Images.loadImage("resume");
-	private static final BufferedImage restartImage = Images.loadImage("restart");
-	private static final BufferedImage homeImage = Images.loadImage("home");
+	private static final BufferedImage backgroundImage = Images.loadImage("gui/pause_background");
+	private static final BufferedImage resumeImage = Images.loadImage("gui/resume");
+	private static final BufferedImage restartImage = Images.loadImage("gui/restart");
+	private static final BufferedImage homeImage = Images.loadImage("gui/home");
 	
 	@Override
 	public void init()

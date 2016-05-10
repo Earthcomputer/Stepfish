@@ -1,12 +1,27 @@
 package net.earthcomputer.galacticgame.object;
 
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
+import net.earthcomputer.galacticgame.util.Images;
 
 public class ElementSwitcherObject extends GameObject implements IUpdateListener
 {
+	
+	private static final BufferedImage[] texture = new BufferedImage[4];
+	
+	private static final int TICKS_PER_FRAME = 20;
+	private int ticksExisted = 0;
+	
+	static
+	{
+		for(int i = 0; i < texture.length; i++)
+		{
+			texture[i] = Images.loadImage("object/element_switcher_" + i);
+		}
+	}
 	
 	public ElementSwitcherObject(double x, double y)
 	{
@@ -19,19 +34,14 @@ public class ElementSwitcherObject extends GameObject implements IUpdateListener
 	{
 		int x = (int) getX();
 		int y = (int) getY();
-		g.setColor(EnumElement.EARTH.getColor());
-		g.fillPolygon(new int[] { x, x + 16, x + 8 }, new int[] { y, y, y + 8 }, 3);
-		g.setColor(EnumElement.WATER.getColor());
-		g.fillPolygon(new int[] { x + 16, x + 16, x + 8 }, new int[] { y, y + 16, y + 8 }, 3);
-		g.setColor(EnumElement.AIR.getColor());
-		g.fillPolygon(new int[] { x + 16, x, x + 8 }, new int[] { y + 16, y + 16, y + 8 }, 3);
-		g.setColor(EnumElement.FIRE.getColor());
-		g.fillPolygon(new int[] { x, x, x + 8 }, new int[] { y + 16, y, y + 8 }, 3);
+		g.drawImage(texture[(ticksExisted / TICKS_PER_FRAME) % 4], x, y, null);
 	}
 	
 	@Override
 	public void update()
 	{
+		ticksExisted++;
+		
 		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
 			for(PlayerObject player : window.listObjects(PlayerObject.class))

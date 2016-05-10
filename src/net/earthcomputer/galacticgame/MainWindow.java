@@ -48,7 +48,7 @@ public class MainWindow
 	
 	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
 	
-	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("pause");
+	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("gui/pause");
 	
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;

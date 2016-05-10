@@ -10,7 +10,7 @@ import net.earthcomputer.galacticgame.util.Images;
 public class StarObject extends GameObject implements IUpdateListener
 {
 	
-	public static final BufferedImage STAR_TEXTURE = Images.loadImage("star");
+	public static final BufferedImage STAR_TEXTURE = Images.loadImage("object/star");
 	
 	private int index;
 	

@@ -17,7 +17,7 @@ public abstract class Button
 	
 	public Button(String image, int x, int y)
 	{
-		this(Images.loadImage(image), x, y);
+		this(Images.loadImage("gui/" + image), x, y);
 	}
 	
 	public Button(BufferedImage image, int x, int y)
