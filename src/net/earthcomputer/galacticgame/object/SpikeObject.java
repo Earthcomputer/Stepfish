@@ -70,7 +70,7 @@ public class SpikeObject extends GameObject implements IUpdateListener
 			}
 		}))
 		{
-			window.restartLevel();
+			window.restartLevel(true);
 		}
 	}
 	

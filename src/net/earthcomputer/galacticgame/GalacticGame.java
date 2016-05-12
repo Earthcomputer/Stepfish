@@ -10,6 +10,7 @@ import net.earthcomputer.galacticgame.gui.GuiMainMenu;
 import net.earthcomputer.galacticgame.object.ObjectTypes;
 import net.earthcomputer.galacticgame.util.Keyboard;
 import net.earthcomputer.galacticgame.util.Profiles;
+import net.earthcomputer.galacticgame.util.SoundManager;
 
 public class GalacticGame implements Thread.UncaughtExceptionHandler
 {
@@ -105,6 +106,7 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 	public void shutdown()
 	{
 		runningLoop = false;
+		SoundManager.closeAllSounds();
 		theWindow.disposeWindow();
 	}
 	

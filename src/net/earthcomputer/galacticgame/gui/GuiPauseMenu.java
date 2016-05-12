@@ -31,7 +31,7 @@ public class GuiPauseMenu extends Gui
 			protected void onPressed()
 			{
 				window.closeGui();
-				window.restartLevel();
+				window.restartLevel(false);
 			}
 		});
 		this.buttonList

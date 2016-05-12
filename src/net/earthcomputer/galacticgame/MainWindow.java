@@ -22,8 +22,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -42,6 +45,7 @@ import net.earthcomputer.galacticgame.util.Keyboard;
 import net.earthcomputer.galacticgame.util.Predicate;
 import net.earthcomputer.galacticgame.util.Profile;
 import net.earthcomputer.galacticgame.util.Profiles;
+import net.earthcomputer.galacticgame.util.SoundManager;
 
 public class MainWindow
 {
@@ -64,6 +68,9 @@ public class MainWindow
 	private Profile currentProfile;
 	private boolean[] starsObtained = new boolean[3];
 	private Gui openGui;
+	
+	private Random rand = new Random();
+	private int musicCooldown = rand.nextInt(350) + 450;
 	
 	public MainWindow()
 	{
@@ -245,8 +252,12 @@ public class MainWindow
 		this.currentLevel = level;
 	}
 	
-	public void restartLevel()
+	public void restartLevel(boolean fail)
 	{
+		if(fail)
+		{
+			SoundManager.playSound("fail");
+		}
 		loadLevel(currentLevel);
 	}
 	
@@ -318,6 +329,21 @@ public class MainWindow
 	
 	public void updateTick()
 	{
+		musicCooldown--;
+		if(musicCooldown == 0)
+		{
+			SoundManager.playSound("music", new LineListener() {
+				
+				@Override
+				public void update(LineEvent e)
+				{
+					if(e.getType() != LineEvent.Type.STOP){ return; }
+					musicCooldown = rand.nextInt(350) + 450;
+				}
+				
+			});
+		}
+		
 		Keyboard.updateTick();
 		
 		if(!paused)

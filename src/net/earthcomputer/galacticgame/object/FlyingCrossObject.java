@@ -136,7 +136,7 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 				break;
 		}
 		
-		if(window.isObjectCollidedWith(this, PlayerObject.class)) window.restartLevel();
+		if(window.isObjectCollidedWith(this, PlayerObject.class)) window.restartLevel(true);
 	}
 	
 	private static enum EnumState

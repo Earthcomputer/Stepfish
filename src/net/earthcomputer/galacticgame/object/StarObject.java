@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskRectangle;
 import net.earthcomputer.galacticgame.util.Images;
+import net.earthcomputer.galacticgame.util.SoundManager;
 
 public class StarObject extends GameObject implements IUpdateListener
 {
@@ -47,6 +48,7 @@ public class StarObject extends GameObject implements IUpdateListener
 	{
 		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
+			SoundManager.playSound("star");
 			window.completeStar(index);
 			window.removeObject(this);
 		}

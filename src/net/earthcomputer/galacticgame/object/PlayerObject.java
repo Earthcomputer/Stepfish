@@ -14,6 +14,7 @@ import net.earthcomputer.galacticgame.gui.GuiPauseMenu;
 import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.Keyboard;
 import net.earthcomputer.galacticgame.util.Predicate;
+import net.earthcomputer.galacticgame.util.SoundManager;
 
 public class PlayerObject extends PhysicsObject
 {
@@ -144,6 +145,7 @@ public class PlayerObject extends PhysicsObject
 		{
 			if(!state.needsSupport())
 			{
+				SoundManager.playSound("jump_land");
 				if(getXVelocity() == 0)
 				{
 					changeState(EnumPlayerState.STAND);
@@ -205,7 +207,14 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		// Restart level if fallen off
-		if(getY() >= window.getHeight()) window.restartLevel();
+		if(getY() >= window.getHeight()) window.restartLevel(true);
+		
+		// Footsteps
+		if(state == EnumPlayerState.WALK && ticksExisted % TICKS_PER_FRAME == 0
+			&& this.getPreviousPos().getX() != getX())
+		{
+			SoundManager.playSound("footstep");
+		}
 	}
 	
 	@Override

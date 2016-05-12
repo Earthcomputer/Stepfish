@@ -5,6 +5,7 @@ import java.awt.Graphics;
 
 import net.earthcomputer.galacticgame.IUpdateListener;
 import net.earthcomputer.galacticgame.geom.collision.MaskEllipse;
+import net.earthcomputer.galacticgame.util.SoundManager;
 
 public class ExitObject extends GameObject implements IUpdateListener
 {
@@ -27,6 +28,7 @@ public class ExitObject extends GameObject implements IUpdateListener
 	{
 		if(window.isObjectCollidedWith(this, PlayerObject.class))
 		{
+			SoundManager.playSound("exit");
 			window.completeLevel();
 		}
 	}
