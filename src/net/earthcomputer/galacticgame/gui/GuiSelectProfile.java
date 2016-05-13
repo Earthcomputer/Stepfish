@@ -1,20 +1,17 @@
 package net.earthcomputer.galacticgame.gui;
 
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
 import net.earthcomputer.galacticgame.GalacticGame;
-import net.earthcomputer.galacticgame.util.Images;
+import net.earthcomputer.galacticgame.util.Profile;
 import net.earthcomputer.galacticgame.util.Profiles;
 
 public class GuiSelectProfile extends GuiScrollable
 {
-	
-	private static final BufferedImage profilePic = Images.loadImage("gui/profile_pic");
 	
 	public GuiSelectProfile(Gui prevGui)
 	{
@@ -31,7 +28,7 @@ public class GuiSelectProfile extends GuiScrollable
 		for(int i = 0; i < profileNames.size(); i++)
 		{
 			final String profileName = profileNames.get(i);
-			buttonList.add(new PlainTextButton(profileName, 20, 20 + 80 * i, 500, 50) {
+			buttonList.add(new ProfileButton(profileName, 20, 20 + 80 * i, 400, 50) {
 				@Override
 				public void onPressed()
 				{
@@ -39,7 +36,7 @@ public class GuiSelectProfile extends GuiScrollable
 					window.openGui(new GuiSelectLevel(GuiSelectProfile.this));
 				}
 			});
-			buttonList.add(new Button("delete", 530, 29 + 80 * i) {
+			buttonList.add(new Button("delete", 430, 29 + 80 * i) {
 				@Override
 				public void onPressed()
 				{
@@ -73,21 +70,33 @@ public class GuiSelectProfile extends GuiScrollable
 					});
 				}
 			});
+			buttonList.add(new Button("score", 470, 29 + 80 * i) {
+				private final Profile profile = Profiles.getProfileByName(profileName);
+				
+				@Override
+				protected void onPressed()
+				{
+					window.openGui(new GuiStarsObtained(GuiSelectProfile.this, profile));
+				}
+				
+				@Override
+				public void draw(int mouseX, int mouseY, Graphics g)
+				{
+					super.draw(mouseX, mouseY, g);
+					FontManager.drawPlainString(g, String.valueOf(profile.getTotalStarsObtained()),
+						getX() + getWidth() + 10, getY() + 22);
+				}
+				
+			});
 		}
-		staticButtonList.add(new Button("back", 565, 80) {
+		
+		staticButtonList.add(new Button("back", 565, 10) {
 			@Override
 			public void onPressed()
 			{
 				window.openGui(new GuiMainMenu());
 			}
 		});
-	}
-	
-	@Override
-	public void drawScreen(Graphics g)
-	{
-		super.drawScreen(g);
-		g.drawImage(profilePic, 565, 10, null);
 	}
 	
 }

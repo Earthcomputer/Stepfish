@@ -33,7 +33,7 @@ public class GuiSelectName extends GuiScrollable
 		
 		for(int i = 0; i < freeProfileNames.size(); i++)
 		{
-			buttonList.add(new PlainTextButton(freeProfileNames.get(i), 20, 20 + i * 80, 500, 50) {
+			buttonList.add(new ProfileButton(freeProfileNames.get(i), 20, 20 + i * 80, 500, 50) {
 				@Override
 				public void onPressed()
 				{
