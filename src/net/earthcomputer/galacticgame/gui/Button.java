@@ -1,5 +1,6 @@
 package net.earthcomputer.galacticgame.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -40,6 +41,11 @@ public abstract class Button
 	public void draw(int mouseX, int mouseY, Graphics g)
 	{
 		g.drawImage(image, x, y, null);
+		if(isHovered(mouseX, mouseY))
+		{
+			g.setColor(Color.WHITE);
+			g.drawRect(x, y, width, height);
+		}
 	}
 	
 	public boolean mousePressed(int x, int y, int button)

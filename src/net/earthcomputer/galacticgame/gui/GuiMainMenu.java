@@ -1,5 +1,6 @@
 package net.earthcomputer.galacticgame.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
@@ -32,6 +33,12 @@ public class GuiMainMenu extends Gui
 				int halfExtraSize = (int) (Math.sin((double) frameCount / 4) * 5);
 				g.drawImage(getImage(), getX() - halfExtraSize, getY() - halfExtraSize,
 					getWidth() + (halfExtraSize * 2), getHeight() + (halfExtraSize * 2), null);
+				if(isHovered(mouseX, mouseY))
+				{
+					g.setColor(Color.WHITE);
+					g.drawRect(getX() - halfExtraSize, getY() - halfExtraSize, getWidth() + (halfExtraSize * 2),
+						getHeight() + (halfExtraSize * 2));
+				}
 				frameCount++;
 			}
 		});

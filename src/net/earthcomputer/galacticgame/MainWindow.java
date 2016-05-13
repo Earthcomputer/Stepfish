@@ -583,6 +583,12 @@ public class MainWindow
 			if(openGui == null)
 			{
 				g.drawImage(PAUSE_BUTTON, 2, 2, null);
+				Point mousePos = getMouseLocation();
+				if(mousePos.x >= 2 && mousePos.y >= 2 && mousePos.x < 34 && mousePos.y < 34)
+				{
+					g.setColor(Color.WHITE);
+					g.drawRect(2, 2, 32, 32);
+				}
 			}
 			else
 			{
