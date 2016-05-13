@@ -140,12 +140,15 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		// land if there is a solid below, fall if there isn't
-		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 14.9, getY() + 16),
+		if(window.isShapeCollidedWith(new Line2D.Double(getX() + 1, getY() + 16, getX() + 15, getY() + 16),
 			wallCollisionPredicate))
 		{
 			if(!state.needsSupport())
 			{
-				SoundManager.playSound("jump_land");
+				if(getYVelocity() > 0)
+				{
+					SoundManager.playSound("jump_land");
+				}
 				if(getXVelocity() == 0)
 				{
 					changeState(EnumPlayerState.STAND);
