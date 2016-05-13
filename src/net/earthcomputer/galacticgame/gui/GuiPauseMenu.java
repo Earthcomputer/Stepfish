@@ -1,5 +1,6 @@
 package net.earthcomputer.galacticgame.gui;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -9,7 +10,6 @@ import net.earthcomputer.galacticgame.util.Images;
 public class GuiPauseMenu extends Gui
 {
 	
-	private static final BufferedImage backgroundImage = Images.loadImage("gui/pause_background");
 	private static final BufferedImage resumeImage = Images.loadImage("gui/resume");
 	private static final BufferedImage restartImage = Images.loadImage("gui/restart");
 	private static final BufferedImage homeImage = Images.loadImage("gui/home");
@@ -48,9 +48,9 @@ public class GuiPauseMenu extends Gui
 	protected void drawMiddleLayer(Graphics g)
 	{
 		Rectangle clipBounds = g.getClipBounds();
-		int x = (int) clipBounds.getCenterX() - backgroundImage.getWidth() / 2;
-		int y = (int) clipBounds.getCenterY() - backgroundImage.getHeight() / 2;
-		g.drawImage(backgroundImage, x, y, null);
+		g.setColor(new Color(128, 128, 128, 128));
+		g.fillRect((int) clipBounds.getX(), (int) clipBounds.getY(), (int) clipBounds.getWidth(),
+			(int) clipBounds.getHeight());
 	}
 	
 	@Override
