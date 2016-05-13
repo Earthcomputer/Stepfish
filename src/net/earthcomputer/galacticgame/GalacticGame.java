@@ -16,7 +16,7 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 {
 	
 	public static final String GAME_NAME = "Galactic Game";
-	public static final String GAME_VERSION = "0.1 Alpha";
+	public static final String GAME_VERSION = "1.0 Beta";
 	public static final int TICKRATE = 30;
 	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
 	public static final int FRAMERATE = TICKRATE;
