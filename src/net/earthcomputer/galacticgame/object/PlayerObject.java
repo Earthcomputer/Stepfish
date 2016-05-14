@@ -145,7 +145,7 @@ public class PlayerObject extends PhysicsObject
 		{
 			if(!state.needsSupport())
 			{
-				if(getYVelocity() > 0)
+				if(getY() > getPreviousPos().getY())
 				{
 					SoundManager.playSound("jump_land");
 				}
