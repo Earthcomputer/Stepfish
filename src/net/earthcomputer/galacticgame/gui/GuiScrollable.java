@@ -4,15 +4,19 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import net.earthcomputer.galacticgame.GalacticGame;
+import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.Keyboard;
 
 public class GuiScrollable extends Gui
 {
+	private static final BufferedImage background = Images.loadImage("gui/back_gui");
+	
 	private static final int SCROLL_BAR_WIDTH = 7;
 	
 	protected Gui prevGui;
@@ -85,8 +89,7 @@ public class GuiScrollable extends Gui
 	{
 		if(!shouldDrawLevelBackground())
 		{
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, width, height);
+			g.drawImage(background, 0, 0, width, height, null);
 		}
 		
 		Point mousePos = GalacticGame.getInstance().getWindow().getMouseLocation();

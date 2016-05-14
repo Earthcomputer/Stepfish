@@ -13,6 +13,7 @@ public class GuiMainMenu extends Gui
 	private static final BufferedImage logo = Images.loadImage("gui/logo");
 	private static final BufferedImage play = Images.loadImage("gui/resume");
 	private static final BufferedImage load = Images.loadImage("gui/select_profile");
+	private static final BufferedImage help = Images.loadImage("gui/help");
 	private static final BufferedImage quit = Images.loadImage("gui/quit");
 	
 	@Override
@@ -52,6 +53,13 @@ public class GuiMainMenu extends Gui
 				}
 			});
 		}
+		this.buttonList.add(new Button(help, width / 2 - help.getWidth() - 20, 300) {
+			@Override
+			protected void onPressed()
+			{
+				window.openGui(new GuiHelp());
+			}
+		});
 		this.buttonList.add(new Button(quit, width / 2 + 20, 300) {
 			@Override
 			protected void onPressed()

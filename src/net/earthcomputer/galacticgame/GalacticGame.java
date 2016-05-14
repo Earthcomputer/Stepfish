@@ -99,6 +99,11 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 					throw new RuntimeException("Ticking thread interrupted");
 				}
 			}
+			else
+			{
+				System.out.println(
+					"One tick took longer than expected: we're behind by " + (-timeToSleep) + " milliseconds!");
+			}
 		}
 	}
 	

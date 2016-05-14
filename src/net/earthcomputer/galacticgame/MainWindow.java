@@ -34,6 +34,7 @@ import javax.swing.JPanel;
 import net.earthcomputer.galacticgame.Level.LevelObject;
 import net.earthcomputer.galacticgame.gui.Gui;
 import net.earthcomputer.galacticgame.gui.GuiCompleteGame;
+import net.earthcomputer.galacticgame.gui.GuiMainMenu;
 import net.earthcomputer.galacticgame.gui.GuiPauseMenu;
 import net.earthcomputer.galacticgame.object.GameObject;
 import net.earthcomputer.galacticgame.object.ObjectTypes;
@@ -53,6 +54,7 @@ public class MainWindow
 	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
 	
 	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("gui/pause");
+	private static final BufferedImage BACKGROUND = Images.loadImage("gui/back_game");
 	
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;
@@ -322,6 +324,11 @@ public class MainWindow
 		return currentLevelIndex;
 	}
 	
+	public void setNoLevel()
+	{
+		this.currentLevel = null;
+	}
+	
 	public void redraw()
 	{
 		theFrame.repaint();
@@ -544,7 +551,7 @@ public class MainWindow
 	
 	public void closeGui()
 	{
-		openGui(null);
+		openGui(currentLevel == null ? new GuiMainMenu() : null);
 	}
 	
 	public Point getMouseLocation()
@@ -568,8 +575,7 @@ public class MainWindow
 			
 			if(openGui == null || openGui.shouldDrawLevelBackground())
 			{
-				g.setColor(Color.BLACK);
-				g.fillRect(0, 0, getWidth(), getHeight());
+				g.drawImage(BACKGROUND, 0, 0, getWidth(), getHeight(), null);
 				
 				synchronized(objects)
 				{

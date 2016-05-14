@@ -1,18 +1,21 @@
 package net.earthcomputer.galacticgame.gui;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.MainWindow;
+import net.earthcomputer.galacticgame.util.Images;
 import net.earthcomputer.galacticgame.util.Keyboard;
 
 public abstract class Gui
 {
+	
+	private static final BufferedImage background = Images.loadImage("gui/back_gui");
 	
 	protected GalacticGame githubGame;
 	protected MainWindow window;
@@ -49,8 +52,7 @@ public abstract class Gui
 	{
 		if(!shouldDrawLevelBackground())
 		{
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, width, height);
+			g.drawImage(background, 0, 0, width, height, null);
 		}
 		
 		drawMiddleLayer(g);

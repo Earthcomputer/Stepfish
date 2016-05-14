@@ -39,6 +39,7 @@ public class GuiPauseMenu extends Gui
 				@Override
 				protected void onPressed()
 				{
+					window.setNoLevel();
 					window.openGui(new GuiMainMenu());
 				}
 			});
