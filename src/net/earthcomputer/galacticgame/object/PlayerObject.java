@@ -34,7 +34,7 @@ public class PlayerObject extends PhysicsObject
 				textures.get(element).put(state, new EnumMap<EnumFacing, BufferedImage[]>(EnumFacing.class));
 				BufferedImage[] frames;
 				// Not animated
-				if(state != EnumPlayerState.WALK && (element != EnumElement.FIRE || state != EnumPlayerState.STAND))
+				if(state != EnumPlayerState.WALK && element != EnumElement.FIRE)
 				{
 					frames = new BufferedImage[] { Images
 						.loadImage(String.format("object/player_%s_%s", element.getName(), state.getName())) };
