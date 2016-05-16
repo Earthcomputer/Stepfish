@@ -28,7 +28,8 @@ public abstract class CollisionMask<S extends Shape>
 	
 	public void setGlobalPos(Pos pos)
 	{
-		this.globalShape = translate(this.globalShape, pos.getX() - this.globalPos.getX(), pos.getY() - this.globalPos.getY());
+		this.globalShape = translate(this.globalShape, pos.getX() - this.globalPos.getX(),
+			pos.getY() - this.globalPos.getY());
 		this.globalPos = Pos.copyOf(pos);
 	}
 	

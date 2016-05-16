@@ -1,7 +1,8 @@
 package net.earthcomputer.galacticgame;
 
-public interface IUpdateListener {
-
+public interface IUpdateListener
+{
+	
 	void update();
 	
 }
