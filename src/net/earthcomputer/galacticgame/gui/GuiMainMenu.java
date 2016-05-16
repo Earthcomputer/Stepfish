@@ -67,7 +67,7 @@ public class GuiMainMenu extends Gui
 			@Override
 			protected void onPressed()
 			{
-				galacticGame.shutdown();
+				githubGame.shutdown();
 			}
 		});
 	}
@@ -87,7 +87,7 @@ public class GuiMainMenu extends Gui
 	{
 		if(Keyboard.isKeyPressed("closeGui"))
 		{
-			galacticGame.shutdown();
+			githubGame.shutdown();
 		}
 	}
 }

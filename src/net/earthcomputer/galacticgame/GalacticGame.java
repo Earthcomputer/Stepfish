@@ -27,8 +27,6 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 	private MainWindow theWindow;
 	private boolean runningLoop = false;
 	
-	private long timeSlept = 0;
-	
 	public static void main(String[] args)
 	{
 		INSTANCE = new GalacticGame();
@@ -87,8 +85,6 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 		{
 			long startTick = System.currentTimeMillis(), timeToSleep;
 			
-			timeSlept = 0;
-			
 			theWindow.updateTick();
 			
 			timeToSleep = MILLIS_PER_TICK - (System.currentTimeMillis() - startTick);
@@ -103,7 +99,7 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 					throw new RuntimeException("Ticking thread interrupted");
 				}
 			}
-			else if(-timeToSleep > timeSlept)
+			else
 			{
 				System.out.println(
 					"One tick took longer than expected: we're behind by " + (-timeToSleep) + " milliseconds!");
@@ -123,19 +119,6 @@ public class GalacticGame implements Thread.UncaughtExceptionHandler
 	public MainWindow getWindow()
 	{
 		return theWindow;
-	}
-	
-	public void sleep(long millis)
-	{
-		timeSlept += millis;
-		try
-		{
-			Thread.sleep(millis);
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
