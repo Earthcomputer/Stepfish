@@ -2,6 +2,7 @@ package net.earthcomputer.galacticgame.object;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
 import java.util.List;
 
 import net.earthcomputer.galacticgame.IUpdateListener;
@@ -136,7 +137,11 @@ public class FlyingCrossObject extends GameObject implements IUpdateListener
 				break;
 		}
 		
-		if(window.isObjectCollidedWith(this, PlayerObject.class)) window.restartLevel(true);
+		Iterator<PlayerObject> collidedPlayers = window.getObjectsThatCollideWith(this, PlayerObject.class).iterator();
+		if(collidedPlayers.hasNext())
+		{
+			window.failLevel(collidedPlayers.next(), this);
+		}
 	}
 	
 	private static enum EnumState

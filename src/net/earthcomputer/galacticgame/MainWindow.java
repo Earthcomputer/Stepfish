@@ -34,10 +34,12 @@ import javax.swing.JPanel;
 import net.earthcomputer.galacticgame.Level.LevelObject;
 import net.earthcomputer.galacticgame.gui.Gui;
 import net.earthcomputer.galacticgame.gui.GuiCompleteGame;
+import net.earthcomputer.galacticgame.gui.GuiFail;
 import net.earthcomputer.galacticgame.gui.GuiMainMenu;
 import net.earthcomputer.galacticgame.gui.GuiPauseMenu;
 import net.earthcomputer.galacticgame.object.GameObject;
 import net.earthcomputer.galacticgame.object.ObjectTypes;
+import net.earthcomputer.galacticgame.object.PlayerObject;
 import net.earthcomputer.galacticgame.util.AlwaysTruePredicate;
 import net.earthcomputer.galacticgame.util.GameObjectCreator;
 import net.earthcomputer.galacticgame.util.Images;
@@ -254,12 +256,18 @@ public class MainWindow
 		this.currentLevel = level;
 	}
 	
-	public void restartLevel(boolean fail)
+	public void failLevel(PlayerObject player)
 	{
-		if(fail)
-		{
-			SoundManager.playSound("fail");
-		}
+		failLevel(player, null);
+	}
+	
+	public void failLevel(PlayerObject player, GameObject cause)
+	{
+		openGui(new GuiFail(player, cause));
+	}
+	
+	public void restartLevel()
+	{
 		loadLevel(currentLevel);
 	}
 	

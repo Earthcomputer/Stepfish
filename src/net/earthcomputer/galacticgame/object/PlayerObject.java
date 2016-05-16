@@ -220,7 +220,7 @@ public class PlayerObject extends PhysicsObject
 		}
 		
 		// Restart level if fallen off
-		if(getY() >= window.getHeight()) window.restartLevel(true);
+		if(getY() >= window.getHeight()) window.failLevel(this);
 		
 		// Footsteps
 		if(state == EnumPlayerState.WALK && ticksExisted % TICKS_PER_FRAME == 0

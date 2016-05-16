@@ -3,6 +3,7 @@ package net.earthcomputer.galacticgame.object;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.EnumMap;
+import java.util.Iterator;
 
 import net.earthcomputer.galacticgame.GalacticGame;
 import net.earthcomputer.galacticgame.IUpdateListener;
@@ -62,15 +63,16 @@ public class SpikeObject extends GameObject implements IUpdateListener
 			ticksUntilSwitch--;
 		}
 		
-		if(window.isObjectCollidedWith(this, new Predicate<GameObject>() {
+		Iterator<GameObject> collidedPlayers = window.getObjectsThatCollideWith(this, new Predicate<GameObject>() {
 			@Override
 			public boolean apply(GameObject input)
 			{
 				return (input instanceof PlayerObject) && ((PlayerObject) input).getElement() != element;
 			}
-		}))
+		}).iterator();
+		if(collidedPlayers.hasNext())
 		{
-			window.restartLevel(true);
+			window.failLevel((PlayerObject) collidedPlayers.next(), this);
 		}
 	}
 	
