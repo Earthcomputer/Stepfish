@@ -81,48 +81,46 @@ public class MoveToContactHelper
 			if(!hitHorizontally && !hitVertically)
 			{
 				shapeTesting = mask.translate(mask.copy(shapeStart), (stepsX + 1) * movingX, (stepsY + 1) * movingY);
-			}
-			if(!hitHorizontally && !hitVertically && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
-			{
-				// Successfully moved diagonally
-				stepsX++;
-				stepsY++;
-			}
-			else
-			{
-				// Try move vertically
-				if(!hitVertically)
+				if(!window.isShapeCollidedWith(shapeTesting, collisionPredicate))
 				{
-					shapeTesting = mask.translate(mask.copy(shapeStart), stepsX * movingX, (stepsY + 1) * movingY);
+					// Successfully moved diagonally
+					stepsX++;
+					stepsY++;
+					continue;
 				}
+			}
+			
+			// Try move vertically
+			if(!hitVertically)
+			{
+				shapeTesting = mask.translate(mask.copy(shapeStart), stepsX * movingX, (stepsY + 1) * movingY);
 				if(!hitVertically && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
 				{
 					// Successfully moved vertically
 					stepsY++;
 					hitHorizontally = true;
-				}
-				else
-				{
-					// Try move horizontally
-					if(!hitHorizontally)
-					{
-						shapeTesting = mask.translate(mask.copy(shapeStart), (stepsX + 1) * movingX, stepsY * movingY);
-					}
-					if(!hitHorizontally && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
-					{
-						// Successfully moved horizontally
-						stepsX++;
-						hitVertically = true;
-					}
-					else
-					{
-						// Couldn't move anywhere
-						hitHorizontally = true;
-						hitVertically = true;
-						break;
-					}
+					continue;
 				}
 			}
+			
+			// Try move horizontally
+			if(!hitHorizontally)
+			{
+				shapeTesting = mask.translate(mask.copy(shapeStart), (stepsX + 1) * movingX, stepsY * movingY);
+				
+				if(!hitHorizontally && !window.isShapeCollidedWith(shapeTesting, collisionPredicate))
+				{
+					// Successfully moved horizontally
+					stepsX++;
+					hitVertically = true;
+					continue;
+				}
+			}
+			
+			// Couldn't move anywhere
+			hitHorizontally = true;
+			hitVertically = true;
+			break;
 		}
 		
 		// Correction
