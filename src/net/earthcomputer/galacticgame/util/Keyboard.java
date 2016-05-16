@@ -35,9 +35,12 @@ public class Keyboard extends KeyAdapter
 	public static void registerKeyBindings()
 	{
 		bindKey(KeyEvent.VK_LEFT, "moveLeft");
+		bindKey(KeyEvent.VK_A, "moveLeft");
 		bindKey(KeyEvent.VK_RIGHT, "moveRight");
+		bindKey(KeyEvent.VK_D, "moveRight");
 		bindKey(KeyEvent.VK_SPACE, "jump");
 		bindKey(KeyEvent.VK_UP, "jump");
+		bindKey(KeyEvent.VK_W, "jump");
 		bindKey(KeyEvent.VK_ESCAPE, "closeGui");
 		bindKey(KeyEvent.VK_UP, "scrollUp");
 		bindKey(KeyEvent.VK_DOWN, "scrollDown");
