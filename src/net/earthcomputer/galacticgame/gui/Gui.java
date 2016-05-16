@@ -17,7 +17,7 @@ public abstract class Gui
 	
 	private static final BufferedImage background = Images.loadImage("gui/back_gui");
 	
-	protected GalacticGame githubGame;
+	protected GalacticGame galacticGame;
 	protected MainWindow window;
 	protected int width;
 	protected int height;
@@ -26,8 +26,8 @@ public abstract class Gui
 	
 	protected Gui()
 	{
-		githubGame = GalacticGame.getInstance();
-		window = githubGame.getWindow();
+		galacticGame = GalacticGame.getInstance();
+		window = galacticGame.getWindow();
 	}
 	
 	protected void init()

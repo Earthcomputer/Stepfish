@@ -258,7 +258,15 @@ public class MainWindow
 	{
 		if(fail)
 		{
-			SoundManager.playSound("fail");
+			runLater(new Runnable() {
+				@Override
+				public void run()
+				{
+					redraw();
+					GalacticGame.getInstance().sleep(500);
+					SoundManager.playSound("fail");
+				}
+			});
 		}
 		loadLevel(currentLevel);
 	}
