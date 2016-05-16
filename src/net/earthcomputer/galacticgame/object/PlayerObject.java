@@ -171,28 +171,38 @@ public class PlayerObject extends PhysicsObject
 			accelerateY(-8);
 		}
 		
-		if(Keyboard.isKeyDown("moveLeft"))
+		if(Keyboard.isKeyDown("moveLeft") ^ Keyboard.isKeyDown("moveRight"))
 		{
-			facing = EnumFacing.LEFT;
-			if(state.needsSupport()) changeState(EnumPlayerState.WALK);
-			if(getXVelocity() > -7) setXVelocity(Math.max(getXVelocity() - 2, -7));
+			if(state == EnumPlayerState.STAND)
+			{
+				changeState(EnumPlayerState.WALK);
+			}
+			
+			if(Keyboard.isKeyDown("moveLeft"))
+			{
+				facing = EnumFacing.LEFT;
+				setXVelocity(Math.max(getXVelocity() - 2, -7));
+			}
+			else
+			{
+				facing = EnumFacing.RIGHT;
+				setXVelocity(Math.min(getXVelocity() + 2, 7));
+			}
 		}
 		else
 		{
-			if(state.needsSupport()) changeState(EnumPlayerState.STAND);
-			if(getXVelocity() < 0) setXVelocity(Math.min(getXVelocity() + 5, 0));
-		}
-		
-		if(Keyboard.isKeyDown("moveRight"))
-		{
-			facing = EnumFacing.RIGHT;
-			if(state.needsSupport()) changeState(EnumPlayerState.WALK);
-			if(getXVelocity() < 7) setXVelocity(Math.min(getXVelocity() + 2, 7));
-		}
-		else
-		{
-			if(state.needsSupport() && !Keyboard.isKeyDown("moveLeft")) changeState(EnumPlayerState.STAND);
-			if(getXVelocity() > 0) setXVelocity(Math.max(getXVelocity() - 5, 0));
+			if(state == EnumPlayerState.WALK)
+			{
+				changeState(EnumPlayerState.STAND);
+			}
+			if(getXVelocity() < 0)
+			{
+				setXVelocity(Math.min(getXVelocity() + 5, 0));
+			}
+			else
+			{
+				setXVelocity(Math.max(getXVelocity() - 5, 0));
+			}
 		}
 		
 		if(Keyboard.isKeyPressed("closeGui"))
