@@ -1,6 +1,10 @@
 package net.earthcomputer.galacticgame.util;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,9 +37,18 @@ public class SoundManager
 			Clip clip;
 			try
 			{
+				InputStream input = new BufferedInputStream(
+					SoundManager.class.getResourceAsStream("/sounds/" + name + ".wav"));
+				ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+				byte[] buffer = new byte[8192];
+				int bytesRead;
+				while((bytesRead = input.read(buffer)) != -1)
+				{
+					bytes.write(buffer, 0, bytesRead);
+				}
 				clip = AudioSystem.getClip();
 				AudioInputStream audioInput = AudioSystem
-					.getAudioInputStream(SoundManager.class.getResourceAsStream("/sounds/" + name + ".wav"));
+					.getAudioInputStream(new ByteArrayInputStream(bytes.toByteArray()));
 				clip.open(audioInput);
 			}
 			catch (LineUnavailableException e)
