@@ -48,8 +48,11 @@ public class GuiHelp extends Gui
 	
 	private static final String KEY_SPACE = KeyEvent.getKeyText(KeyEvent.VK_SPACE);
 	private static final String KEY_UP = KeyEvent.getKeyText(KeyEvent.VK_UP);
+	private static final String KEY_W = KeyEvent.getKeyText(KeyEvent.VK_W);
 	private static final String KEY_LEFT = KeyEvent.getKeyText(KeyEvent.VK_LEFT);
+	private static final String KEY_A = KeyEvent.getKeyText(KeyEvent.VK_A);
 	private static final String KEY_RIGHT = KeyEvent.getKeyText(KeyEvent.VK_RIGHT);
+	private static final String KEY_D = KeyEvent.getKeyText(KeyEvent.VK_D);
 	
 	private int ticksExisted = 0;
 	
@@ -82,17 +85,17 @@ public class GuiHelp extends Gui
 		{
 			g.drawImage(playerStand, 100, 150, null);
 		}
-		FontManager.drawPlainString(g, KEY_SPACE + " / " + KEY_UP, 150, 150);
+		FontManager.drawPlainString(g, KEY_SPACE + " / " + KEY_UP + " / " + KEY_W, 150, 150);
 		
 		g.clipRect(76, 200, 64, 16);
 		g.drawImage(playerWalkLeft[(ticksExisted / TICKS_PER_FRAME) % 2], 140 - (ticksExisted % 40) * 3, 200, null);
 		g.setClip(null);
-		FontManager.drawPlainString(g, KEY_LEFT, 150, 215);
+		FontManager.drawPlainString(g, KEY_LEFT + " / " + KEY_A, 150, 215);
 		
 		g.clipRect(76, 250, 64, 16);
 		g.drawImage(playerWalkRight[(ticksExisted / TICKS_PER_FRAME) % 2], 60 + (ticksExisted % 40) * 3, 250, null);
 		g.setClip(null);
-		FontManager.drawPlainString(g, KEY_RIGHT, 150, 265);
+		FontManager.drawPlainString(g, KEY_RIGHT + " / " + KEY_D, 150, 265);
 	}
 	
 	@Override
