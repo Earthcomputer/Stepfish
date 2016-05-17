@@ -263,6 +263,7 @@ public class MainWindow
 	
 	public void failLevel(PlayerObject player, GameObject cause)
 	{
+		player.setSpeed(0);
 		openGui(new GuiFail(player, cause));
 	}
 	
