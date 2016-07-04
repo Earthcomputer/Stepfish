@@ -25,8 +25,6 @@ import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -50,95 +48,84 @@ import net.earthcomputer.galacticgame.util.Profile;
 import net.earthcomputer.galacticgame.util.Profiles;
 import net.earthcomputer.galacticgame.util.SoundManager;
 
-public class MainWindow
-{
-	
+public class MainWindow {
+
 	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
-	
+
 	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("gui/pause");
 	private static final BufferedImage BACKGROUND = Images.loadImage("gui/back_game");
-	
+
 	private final JFrame theFrame;
 	private CustomContentPane contentPane;
-	
+
 	private List<GameObject> objects = Collections.synchronizedList(new ArrayList<GameObject>());
 	private List<IUpdateListener> updateListeners = Collections.synchronizedList(new ArrayList<IUpdateListener>());
 	private Queue<Runnable> runLater = new ConcurrentLinkedQueue<Runnable>();
-	
+
 	private boolean paused = false;
-	
+
 	private Level currentLevel;
 	private int currentLevelIndex;
 	private Profile currentProfile;
 	private boolean[] starsObtained = new boolean[3];
 	private Gui openGui;
-	
+
 	private Random rand = new Random();
 	private int musicCooldown = rand.nextInt(350) + 450;
-	
-	public MainWindow()
-	{
-		theFrame = new JFrame(
-			GalacticGame.randomGenTitle(GalacticGame.GAME_VERSION.hashCode() + 31 * GalacticGame.GAME_NAME.hashCode())
-				+ " (" + GalacticGame.GAME_NAME + " " + GalacticGame.GAME_VERSION + ")");
-				
+
+	public MainWindow() {
+		theFrame = new JFrame(GalacticGame
+				.randomGenTitle(GalacticGame.GAME_VERSION.hashCode() + 31 * GalacticGame.GAME_NAME.hashCode()) + " ("
+				+ GalacticGame.GAME_NAME + " " + GalacticGame.GAME_VERSION + ")");
+
 		theFrame.setContentPane(contentPane = new CustomContentPane());
 		contentPane.setPreferredSize(PREFERRED_SIZE);
 		theFrame.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e)
-			{
+			public void windowClosing(WindowEvent e) {
 				GalacticGame.getInstance().shutdown();
 			}
 		});
 		contentPane.addMouseListener(new MouseAdapter() {
-			
+
 			@Override
-			public void mousePressed(MouseEvent e)
-			{
-				if(openGui == null)
-				{
-					if(e.getButton() == MouseEvent.BUTTON1)
-					{
-						if(e.getX() >= 2 && e.getY() >= 2 && e.getX() < 2 + PAUSE_BUTTON.getWidth()
-							&& e.getY() < 2 + PAUSE_BUTTON.getHeight())
-						{
+			public void mousePressed(MouseEvent e) {
+				if (openGui == null) {
+					if (e.getButton() == MouseEvent.BUTTON1) {
+						if (e.getX() >= 2 && e.getY() >= 2 && e.getX() < 2 + PAUSE_BUTTON.getWidth()
+								&& e.getY() < 2 + PAUSE_BUTTON.getHeight()) {
 							openGui(new GuiPauseMenu());
 						}
 					}
-				}
-				else
-				{
+				} else {
 					openGui.mousePressed(e.getX(), e.getY(), e.getButton());
 				}
 			}
-			
+
 			@Override
-			public void mouseReleased(MouseEvent e)
-			{
-				if(openGui != null) openGui.mouseReleased(e.getX(), e.getY(), e.getButton());
+			public void mouseReleased(MouseEvent e) {
+				if (openGui != null)
+					openGui.mouseReleased(e.getX(), e.getY(), e.getButton());
 			}
-			
+
 		});
 		contentPane.addMouseWheelListener(new MouseWheelListener() {
-			
+
 			@Override
-			public void mouseWheelMoved(MouseWheelEvent e)
-			{
-				if(openGui != null) openGui.mouseScrolled((float) e.getPreciseWheelRotation());
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (openGui != null)
+					openGui.mouseScrolled((float) e.getPreciseWheelRotation());
 			}
-			
+
 		});
 		contentPane.addKeyListener(Keyboard.instance());
 		contentPane.addFocusListener(new FocusListener() {
 			@Override
-			public void focusGained(FocusEvent e)
-			{
+			public void focusGained(FocusEvent e) {
 			}
-			
+
 			@Override
-			public void focusLost(FocusEvent e)
-			{
+			public void focusLost(FocusEvent e) {
 				Keyboard.clearKeys();
 			}
 		});
@@ -149,468 +136,371 @@ public class MainWindow
 		contentPane.requestFocus();
 		theFrame.setVisible(true);
 	}
-	
-	public void disposeWindow()
-	{
+
+	public void disposeWindow() {
 		theFrame.dispose();
 	}
-	
-	public GameObject addObject(double x, double y, int id)
-	{
+
+	public GameObject addObject(double x, double y, int id) {
 		return addObject(x, y, ObjectTypes.getCreatorById(id));
 	}
-	
-	public <T extends GameObject> T addObject(double x, double y, GameObjectCreator<T> creator)
-	{
+
+	public <T extends GameObject> T addObject(double x, double y, GameObjectCreator<T> creator) {
 		final T instance = creator.create(x, y);
-		if(instance != null)
-		{
+		if (instance != null) {
 			runLater(new Runnable() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					objects.add(instance);
 					instance.onAdded();
 				}
 			});
-			if(instance instanceof IUpdateListener) addUpdateListener((IUpdateListener) instance);
+			if (instance instanceof IUpdateListener)
+				addUpdateListener((IUpdateListener) instance);
 		}
 		return instance;
 	}
-	
-	public void removeObject(final GameObject object)
-	{
+
+	public void removeObject(final GameObject object) {
 		runLater(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				objects.remove(object);
 				object.onRemoved();
 			}
 		});
-		if(object instanceof IUpdateListener) removeUpdateListener((IUpdateListener) object);
+		if (object instanceof IUpdateListener)
+			removeUpdateListener((IUpdateListener) object);
 	}
-	
-	public void addUpdateListener(final IUpdateListener updateListener)
-	{
+
+	public void addUpdateListener(final IUpdateListener updateListener) {
 		runLater(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				updateListeners.add(updateListener);
 			}
 		});
 	}
-	
-	public void removeUpdateListener(final IUpdateListener updateListener)
-	{
+
+	public void removeUpdateListener(final IUpdateListener updateListener) {
 		runLater(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				updateListeners.remove(updateListener);
 			}
 		});
 	}
-	
-	public boolean loadLevel(int id)
-	{
+
+	public boolean loadLevel(int id) {
 		Level level;
-		try
-		{
+		try {
 			level = Levels.loadLevel(id);
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			return false;
 		}
-		
+
 		Arrays.fill(starsObtained, false);
 		currentLevelIndex = id;
 		loadLevel(level);
 		return true;
 	}
-	
-	private void loadLevel(Level level)
-	{
+
+	private void loadLevel(Level level) {
 		runLater(new Runnable() {
 			@Override
-			public void run()
-			{
-				synchronized(objects)
-				{
+			public void run() {
+				synchronized (objects) {
 					objects.clear();
 				}
-				synchronized(updateListeners)
-				{
+				synchronized (updateListeners) {
 					updateListeners.clear();
 				}
 			}
 		});
-		
-		for(LevelObject object : level.objects)
-		{
+
+		for (LevelObject object : level.objects) {
 			addObject(object.x, object.y, object.id);
 		}
-		
+
 		this.currentLevel = level;
 	}
-	
-	public void failLevel(PlayerObject player)
-	{
+
+	public void failLevel(PlayerObject player) {
 		failLevel(player, null);
 	}
-	
-	public void failLevel(PlayerObject player, GameObject cause)
-	{
+
+	public void failLevel(PlayerObject player, GameObject cause) {
 		player.setSpeed(0);
 		openGui(new GuiFail(player, cause));
 	}
-	
-	public void restartLevel()
-	{
+
+	public void restartLevel() {
 		loadLevel(currentLevel);
 	}
-	
-	public void completeLevel()
-	{
-		if(currentLevelIndex == currentProfile.getCurrentLevel())
-		{
+
+	public void completeLevel() {
+		if (currentLevelIndex == currentProfile.getCurrentLevel()) {
 			currentProfile.completeLevel();
 		}
-		
-		for(int i = 0; i < 3; i++)
-		{
-			if(starsObtained[i] && !currentProfile.isStarObtained(currentLevelIndex, i))
-			{
+
+		for (int i = 0; i < 3; i++) {
+			if (starsObtained[i] && !currentProfile.isStarObtained(currentLevelIndex, i)) {
 				currentProfile.obtainStar(currentLevelIndex, i);
 			}
 		}
-		
-		try
-		{
+
+		try {
 			Profiles.saveProfiles();
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, "An error occurred while saving to profiles file.",
-				GalacticGame.GAME_NAME, JOptionPane.ERROR_MESSAGE);
+					GalacticGame.GAME_NAME, JOptionPane.ERROR_MESSAGE);
 		}
-		
-		if(currentLevelIndex == Levels.getLevelCount() - 1)
-		{
+
+		if (currentLevelIndex == Levels.getLevelCount() - 1) {
 			completeGame();
-		}
-		else
-		{
+		} else {
 			loadLevel(currentLevelIndex + 1);
 		}
 	}
-	
-	public void completeGame()
-	{
+
+	public void completeGame() {
 		openGui(new GuiCompleteGame());
 	}
-	
-	public void completeStar(int index)
-	{
+
+	public void completeStar(int index) {
 		starsObtained[index] = true;
 	}
-	
-	public Profile getProfile()
-	{
+
+	public Profile getProfile() {
 		return currentProfile;
 	}
-	
-	public void setProfile(Profile profile)
-	{
+
+	public void setProfile(Profile profile) {
 		this.currentProfile = profile;
 	}
-	
-	public int getCurrentLevelIndex()
-	{
+
+	public int getCurrentLevelIndex() {
 		return currentLevelIndex;
 	}
-	
-	public void setNoLevel()
-	{
+
+	public void setNoLevel() {
 		this.currentLevel = null;
 	}
-	
-	public void redraw()
-	{
+
+	public void redraw() {
 		theFrame.repaint();
 	}
-	
-	public void updateTick()
-	{
+
+	public void updateTick() {
 		musicCooldown--;
-		if(musicCooldown == 0)
-		{
-			SoundManager.playSound("music", new LineListener() {
-				
+		if (musicCooldown == 0) {
+			SoundManager.playSound("music", new Runnable() {
 				@Override
-				public void update(LineEvent e)
-				{
-					if(e.getType() != LineEvent.Type.STOP){ return; }
+				public void run() {
 					musicCooldown = rand.nextInt(350) + 450;
 				}
-				
 			});
 		}
-		
+
 		Keyboard.updateTick();
-		
-		if(!paused)
-		{
-			synchronized(updateListeners)
-			{
-				for(IUpdateListener updateListener : updateListeners)
-				{
+
+		if (!paused) {
+			synchronized (updateListeners) {
+				for (IUpdateListener updateListener : updateListeners) {
 					updateListener.update();
 				}
 			}
 		}
-		
-		if(openGui != null) openGui.updateTick();
-		
+
+		if (openGui != null)
+			openGui.updateTick();
+
 		redraw();
-		
-		synchronized(objects)
-		{
+
+		synchronized (objects) {
 			Collections.sort(objects, new Comparator<GameObject>() {
 				@Override
-				public int compare(GameObject first, GameObject second)
-				{
+				public int compare(GameObject first, GameObject second) {
 					return Integer.compare(second.getDepth(), first.getDepth());
 				}
 			});
 		}
-		
-		synchronized(updateListeners)
-		{
+
+		synchronized (updateListeners) {
 			Collections.sort(updateListeners, new Comparator<IUpdateListener>() {
 				@Override
-				public int compare(IUpdateListener first, IUpdateListener second)
-				{
-					if(first instanceof GameObject)
-					{
-						if(second instanceof GameObject)
-						{
+				public int compare(IUpdateListener first, IUpdateListener second) {
+					if (first instanceof GameObject) {
+						if (second instanceof GameObject) {
 							return Integer.compare(((GameObject) second).getDepth(), ((GameObject) first).getDepth());
-						}
-						else
-						{
+						} else {
 							return -1;
 						}
-					}
-					else if(second instanceof GameObject)
-					{
+					} else if (second instanceof GameObject) {
 						return 1;
-					}
-					else
-					{
+					} else {
 						return 0;
 					}
 				}
 			});
 		}
-		
-		synchronized(runLater)
-		{
-			while(!runLater.isEmpty())
-			{
+
+		synchronized (runLater) {
+			while (!runLater.isEmpty()) {
 				runLater.poll().run();
 			}
 		}
 	}
-	
-	public void runLater(Runnable task)
-	{
-		synchronized(runLater)
-		{
+
+	public void runLater(Runnable task) {
+		synchronized (runLater) {
 			runLater.offer(task);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends GameObject> List<T> listObjects(Class<T> clazz)
-	{
+	public <T extends GameObject> List<T> listObjects(Class<T> clazz) {
 		return (List<T>) listObjects(new InstanceOfPredicate<GameObject>(clazz));
 	}
-	
-	public List<GameObject> listObjects(Predicate<GameObject> predicate)
-	{
+
+	public List<GameObject> listObjects(Predicate<GameObject> predicate) {
 		List<GameObject> objectsFound = new ArrayList<GameObject>();
-		synchronized(objects)
-		{
-			for(GameObject object : objects)
-			{
-				if(predicate.apply(object))
-				{
+		synchronized (objects) {
+			for (GameObject object : objects) {
+				if (predicate.apply(object)) {
 					objectsFound.add(object);
 				}
 			}
 		}
 		return objectsFound;
 	}
-	
-	public List<GameObject> getObjectsThatCollideWith(GameObject object)
-	{
+
+	public List<GameObject> getObjectsThatCollideWith(GameObject object) {
 		return getObjectsThatCollideWith(object, new AlwaysTruePredicate<GameObject>());
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends GameObject> List<T> getObjectsThatCollideWith(GameObject object, Class<T> type)
-	{
+	public <T extends GameObject> List<T> getObjectsThatCollideWith(GameObject object, Class<T> type) {
 		return (List<T>) getObjectsThatCollideWith(object, new InstanceOfPredicate<GameObject>(type));
 	}
-	
-	public List<GameObject> getObjectsThatCollideWith(final GameObject object, final Predicate<GameObject> filter)
-	{
+
+	public List<GameObject> getObjectsThatCollideWith(final GameObject object, final Predicate<GameObject> filter) {
 		return listObjects(new Predicate<GameObject>() {
 			@Override
-			public boolean apply(GameObject input)
-			{
+			public boolean apply(GameObject input) {
 				return filter.apply(input) && object.isCollidedWith(input);
 			}
 		});
 	}
-	
-	public List<GameObject> getObjectsThatCollideWith(Shape shape)
-	{
+
+	public List<GameObject> getObjectsThatCollideWith(Shape shape) {
 		return getObjectsThatCollideWith(shape, new AlwaysTruePredicate<GameObject>());
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public <T extends GameObject> List<T> getObjectsThatCollideWith(Shape shape, Class<T> type)
-	{
+	public <T extends GameObject> List<T> getObjectsThatCollideWith(Shape shape, Class<T> type) {
 		return (List<T>) getObjectsThatCollideWith(shape, new InstanceOfPredicate<GameObject>(type));
 	}
-	
-	public List<GameObject> getObjectsThatCollideWith(final Shape shape, final Predicate<GameObject> filter)
-	{
+
+	public List<GameObject> getObjectsThatCollideWith(final Shape shape, final Predicate<GameObject> filter) {
 		return listObjects(new Predicate<GameObject>() {
 			@Override
-			public boolean apply(GameObject input)
-			{
+			public boolean apply(GameObject input) {
 				return filter.apply(input) && input.isCollidedWith(shape);
 			}
 		});
 	}
-	
-	public boolean isObjectCollidedWith(GameObject object, Class<? extends GameObject> type)
-	{
+
+	public boolean isObjectCollidedWith(GameObject object, Class<? extends GameObject> type) {
 		return !getObjectsThatCollideWith(object, type).isEmpty();
 	}
-	
-	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> filter)
-	{
+
+	public boolean isObjectCollidedWith(GameObject object, Predicate<GameObject> filter) {
 		return !getObjectsThatCollideWith(object, filter).isEmpty();
 	}
-	
-	public boolean isShapeCollidedWith(Shape shape, Class<? extends GameObject> type)
-	{
+
+	public boolean isShapeCollidedWith(Shape shape, Class<? extends GameObject> type) {
 		return !getObjectsThatCollideWith(shape, type).isEmpty();
 	}
-	
-	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> filter)
-	{
+
+	public boolean isShapeCollidedWith(Shape shape, Predicate<GameObject> filter) {
 		return !getObjectsThatCollideWith(shape, filter).isEmpty();
 	}
-	
-	public int getWidth()
-	{
+
+	public int getWidth() {
 		return currentLevel.width;
 	}
-	
-	public int getHeight()
-	{
+
+	public int getHeight() {
 		return currentLevel.height;
 	}
-	
-	public void openGui(final Gui gui)
-	{
+
+	public void openGui(final Gui gui) {
 		runLater(new Runnable() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				openGuiDangerously(gui);
 			}
 		});
 	}
-	
-	private void openGuiDangerously(Gui gui)
-	{
-		if(openGui != null) openGui.onClosed();
-		
+
+	private void openGuiDangerously(Gui gui) {
+		if (openGui != null)
+			openGui.onClosed();
+
 		this.openGui = gui;
-		
-		if(gui == null)
-		{
+
+		if (gui == null) {
 			this.paused = false;
-		}
-		else
-		{
+		} else {
 			this.paused = gui.pausesGame();
 			gui.validate(contentPane.getWidth(), contentPane.getHeight());
 		}
 	}
-	
-	public void closeGui()
-	{
+
+	public void closeGui() {
 		openGui(currentLevel == null ? new GuiMainMenu() : null);
 	}
-	
-	public Point getMouseLocation()
-	{
+
+	public Point getMouseLocation() {
 		Point mouseLocation = new Point(MouseInfo.getPointerInfo().getLocation());
 		Point compLocation = contentPane.getLocationOnScreen();
 		mouseLocation.x -= compLocation.x;
 		mouseLocation.y -= compLocation.y;
 		return mouseLocation;
 	}
-	
-	private class CustomContentPane extends JPanel
-	{
-		
+
+	private class CustomContentPane extends JPanel {
+
 		private static final long serialVersionUID = -5888940429070142635L;
-		
+
 		@Override
-		public void paintComponent(Graphics g)
-		{
+		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			
-			if(openGui == null || openGui.shouldDrawLevelBackground())
-			{
+
+			if (openGui == null || openGui.shouldDrawLevelBackground()) {
 				g.drawImage(BACKGROUND, 0, 0, getWidth(), getHeight(), null);
-				
-				synchronized(objects)
-				{
-					for(GameObject object : objects)
-					{
+
+				synchronized (objects) {
+					for (GameObject object : objects) {
 						object.draw(g);
 					}
 				}
 			}
-			
-			if(openGui == null)
-			{
+
+			if (openGui == null) {
 				g.drawImage(PAUSE_BUTTON, 2, 2, null);
 				Point mousePos = getMouseLocation();
-				if(mousePos.x >= 2 && mousePos.y >= 2 && mousePos.x < 34 && mousePos.y < 34)
-				{
+				if (mousePos.x >= 2 && mousePos.y >= 2 && mousePos.x < 34 && mousePos.y < 34) {
 					g.setColor(Color.WHITE);
 					g.drawRect(2, 2, 32, 32);
 				}
-			}
-			else
-			{
+			} else {
 				openGui.drawScreen(g);
 			}
 		}
-		
+
 	}
-	
+
 }
