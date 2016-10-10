@@ -1,2 +1,2 @@
 # Game
-My first collaborative project that I'm working on on my own!
+This game got nominated for a BAFTA award in 2016
