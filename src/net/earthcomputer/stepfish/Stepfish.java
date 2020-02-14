@@ -16,7 +16,7 @@ public class Stepfish implements Thread.UncaughtExceptionHandler
 {
 	
 	public static final String GAME_NAME = "Stepfish";
-	public static final String GAME_VERSION = "1.0 Beta";
+	public static final String GAME_VERSION = "1.1 Beta";
 	public static final int TICKRATE = 30;
 	private static final int MILLIS_PER_TICK = 1000 / TICKRATE;
 	public static final int FRAMERATE = TICKRATE;
