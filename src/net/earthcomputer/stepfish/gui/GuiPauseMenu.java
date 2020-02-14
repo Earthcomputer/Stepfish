@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import net.earthcomputer.stepfish.MainWindow;
 import net.earthcomputer.stepfish.util.Images;
 
 public class GuiPauseMenu extends Gui
@@ -48,10 +49,8 @@ public class GuiPauseMenu extends Gui
 	@Override
 	protected void drawMiddleLayer(Graphics g)
 	{
-		Rectangle clipBounds = g.getClipBounds();
 		g.setColor(new Color(128, 128, 128, 128));
-		g.fillRect((int) clipBounds.getX(), (int) clipBounds.getY(), (int) clipBounds.getWidth(),
-			(int) clipBounds.getHeight());
+		g.fillRect(0, 0, MainWindow.BUFFER_WIDTH, MainWindow.BUFFER_HEIGHT);
 	}
 	
 	@Override

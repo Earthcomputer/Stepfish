@@ -50,7 +50,8 @@ import net.earthcomputer.stepfish.util.SoundManager;
 
 public class MainWindow {
 
-	private static final Dimension PREFERRED_SIZE = new Dimension(640, 480);
+	public static final int BUFFER_WIDTH = 640;
+	public static final int BUFFER_HEIGHT = 480;
 
 	private static final BufferedImage PAUSE_BUTTON = Images.loadImage("gui/pause");
 	private static final BufferedImage BACKGROUND = Images.loadImage("gui/back_game");
@@ -79,7 +80,7 @@ public class MainWindow {
 				+ Stepfish.GAME_NAME + " " + Stepfish.GAME_VERSION + ")");
 
 		theFrame.setContentPane(contentPane = new CustomContentPane());
-		contentPane.setPreferredSize(PREFERRED_SIZE);
+		contentPane.setPreferredSize(new Dimension(BUFFER_WIDTH, BUFFER_HEIGHT));
 		theFrame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -90,22 +91,25 @@ public class MainWindow {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				Point mouseLocation = getMouseLocation();
 				if (openGui == null) {
 					if (e.getButton() == MouseEvent.BUTTON1) {
-						if (e.getX() >= 2 && e.getY() >= 2 && e.getX() < 2 + PAUSE_BUTTON.getWidth()
-								&& e.getY() < 2 + PAUSE_BUTTON.getHeight()) {
+						if (mouseLocation.x >= 2 && mouseLocation.y >= 2
+								&& mouseLocation.x < 2 + PAUSE_BUTTON.getWidth() && mouseLocation.y < 2 + PAUSE_BUTTON.getHeight()) {
 							openGui(new GuiPauseMenu());
 						}
 					}
 				} else {
-					openGui.mousePressed(e.getX(), e.getY(), e.getButton());
+					openGui.mousePressed(mouseLocation.x, mouseLocation.y, e.getButton());
 				}
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (openGui != null)
-					openGui.mouseReleased(e.getX(), e.getY(), e.getButton());
+				if (openGui != null) {
+					Point mouseLocation = getMouseLocation();
+					openGui.mouseReleased(mouseLocation.x, mouseLocation.y, e.getButton());
+				}
 			}
 
 		});
@@ -130,7 +134,6 @@ public class MainWindow {
 			}
 		});
 		contentPane.requestFocusInWindow();
-		theFrame.setResizable(false);
 		theFrame.pack();
 		theFrame.setLocationRelativeTo(null);
 		contentPane.requestFocus();
@@ -290,6 +293,29 @@ public class MainWindow {
 
 	public void redraw() {
 		theFrame.repaint();
+	}
+
+	private void draw(Graphics g) {
+		if (openGui == null || openGui.shouldDrawLevelBackground()) {
+			g.drawImage(BACKGROUND, 0, 0, BUFFER_WIDTH, BUFFER_HEIGHT, null);
+
+			synchronized (objects) {
+				for (GameObject object : objects) {
+					object.draw(g);
+				}
+			}
+		}
+
+		if (openGui == null) {
+			g.drawImage(PAUSE_BUTTON, 2, 2, null);
+			Point mousePos = getMouseLocation();
+			if (mousePos.x >= 2 && mousePos.y >= 2 && mousePos.x < 34 && mousePos.y < 34) {
+				g.setColor(Color.WHITE);
+				g.drawRect(2, 2, 32, 32);
+			}
+		} else {
+			openGui.drawScreen(g);
+		}
 	}
 
 	public void updateTick() {
@@ -455,7 +481,7 @@ public class MainWindow {
 			this.paused = false;
 		} else {
 			this.paused = gui.pausesGame();
-			gui.validate(contentPane.getWidth(), contentPane.getHeight());
+			gui.validate(BUFFER_WIDTH, BUFFER_HEIGHT);
 		}
 	}
 
@@ -468,6 +494,17 @@ public class MainWindow {
 		Point compLocation = contentPane.getLocationOnScreen();
 		mouseLocation.x -= compLocation.x;
 		mouseLocation.y -= compLocation.y;
+		if (contentPane.isWidthControlling()) {
+			int height = BUFFER_HEIGHT * contentPane.getWidth() / BUFFER_WIDTH;
+			mouseLocation.y -= contentPane.getHeight() / 2 - height / 2;
+			mouseLocation.x = mouseLocation.x * BUFFER_WIDTH / contentPane.getWidth();
+			mouseLocation.y = mouseLocation.y * BUFFER_HEIGHT / height;
+		} else {
+			int width = BUFFER_WIDTH * contentPane.getHeight() / BUFFER_HEIGHT;
+			mouseLocation.x -= contentPane.getWidth() / 2 - width / 2;
+			mouseLocation.x = mouseLocation.x * BUFFER_WIDTH / width;
+			mouseLocation.y = mouseLocation.y * BUFFER_HEIGHT / contentPane.getHeight();
+		}
 		return mouseLocation;
 	}
 
@@ -475,30 +512,33 @@ public class MainWindow {
 
 		private static final long serialVersionUID = -5888940429070142635L;
 
+		private final BufferedImage buffer = new BufferedImage(BUFFER_WIDTH, BUFFER_HEIGHT, BufferedImage.TYPE_INT_RGB);
+
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 
-			if (openGui == null || openGui.shouldDrawLevelBackground()) {
-				g.drawImage(BACKGROUND, 0, 0, getWidth(), getHeight(), null);
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), getHeight());
 
-				synchronized (objects) {
-					for (GameObject object : objects) {
-						object.draw(g);
-					}
-				}
-			}
+			Graphics bufferGraphics = buffer.createGraphics();
+			draw(bufferGraphics);
+			bufferGraphics.dispose();
 
-			if (openGui == null) {
-				g.drawImage(PAUSE_BUTTON, 2, 2, null);
-				Point mousePos = getMouseLocation();
-				if (mousePos.x >= 2 && mousePos.y >= 2 && mousePos.x < 34 && mousePos.y < 34) {
-					g.setColor(Color.WHITE);
-					g.drawRect(2, 2, 32, 32);
-				}
+			if (isWidthControlling()) {
+				int height = BUFFER_HEIGHT * getWidth() / BUFFER_WIDTH;
+				g.drawImage(buffer, 0, getHeight() / 2 - height / 2, getWidth(), height, null);
 			} else {
-				openGui.drawScreen(g);
+				int width = BUFFER_WIDTH * getHeight() / BUFFER_HEIGHT;
+				g.drawImage(buffer, getWidth() / 2 - width / 2, 0, width, getHeight(), null);
 			}
+		}
+
+		/**
+		 * Returns whether the screen is narrow, and therefore the width is the controlling scale factor
+		 */
+		public boolean isWidthControlling() {
+			return BUFFER_WIDTH * getHeight() > BUFFER_HEIGHT * getWidth();
 		}
 
 	}
