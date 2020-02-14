@@ -1,5 +1,5 @@
 u4: magic (always "PRFL" in ASCII, or 0x5052464C in hex)
-u1: version (always 0 at the moment)
+u1: version (always 1 at the moment)
 u1: profile-count {
 	s2: profile-name-id (may be negative for old random profile names)
 	u1: level-they-are-on
