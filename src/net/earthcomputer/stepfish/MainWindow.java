@@ -199,13 +199,13 @@ public class MainWindow {
 			return false;
 		}
 
-		Arrays.fill(starsObtained, false);
 		currentLevelIndex = id;
 		loadLevel(level);
 		return true;
 	}
 
 	private void loadLevel(Level level) {
+		Arrays.fill(starsObtained, false);
 		runLater(new Runnable() {
 			@Override
 			public void run() {
